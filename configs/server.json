@@ -1,0 +1,7 @@
+{
+    "extends": "./base.json",
+    "compilerOptions": {
+        "outDir": "../build/server"
+    },
+    "include": ["../server/*.ts"]
+}
