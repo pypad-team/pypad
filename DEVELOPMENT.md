@@ -20,8 +20,6 @@ collabd uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) 
 collabd uses [mocha](https://mochajs.org/), [chai](https://www.chaijs.com/), and [sinon](https://sinonjs.org/) to test the code. This allows for testing with assertions and mocks. All the tests written for the server and client are stored in the `tests` directory. Running tests manually can be done by running `npm run test-client` for client tests, `npm run test-server` for server tests, and `npm run test` to run all tests. This is automatically run when running the production server.
 
 ## Contributing
-The collabd repository has pre-commit git hooks to automatically test and lint the code before each commit. If any of these fail, the commit will fail and the appropriate changes will need to be made.
-
-To maintain this workflow, please write proper tests for any new or modified functions in the corresponding test directories.
+Please test and lint the code before each commit. To maintain this workflow, please write proper tests for any new or modified functions in the corresponding test directories.
 
 Please also make sure to keep the commit history clean with clear commit messages. Developing large changes in separate branches while maintaining this workflow can help. Once these branches are working and ready, they can be merged into master.

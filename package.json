@@ -21,7 +21,6 @@
     "check-lint": "echo 'Checking code style' && ./node_modules/.bin/eslint --ext .ts,.js ./server/ ./client/ ./tests/",
     "dev": "npm run lint && ts-node-dev --respawn --transpileOnly ./server/index.ts",
     "lint": "echo 'Formatting code' && ./node_modules/.bin/eslint --fix --ext .ts,.js ./server/ ./client/ ./tests/",
-    "precommit-msg": "echo 'Starting pre-commit checks'",
     "prod": "npm run lint && npm run test && npm run build && npm start",
     "start": "node ./build/server/index.js",
     "test": "npm run test-client && npm run test-server",
@@ -29,11 +28,6 @@
     "test-server": "echo 'Starting server tests' && mocha -r ts-node/register ./tests/server/*.ts",
     "tsc": "tsc"
   },
-  "pre-commit": [
-    "precommit-msg",
-    "check-lint",
-    "test"
-  ],
   "dependencies": {
     "@types/chai": "^4.2.11",
     "@types/express": "^4.17.3",
@@ -55,7 +49,6 @@
     "typescript": "^3.8.3"
   },
   "devDependencies": {
-    "pre-commit": "^1.2.2",
     "ts-node-dev": "^1.0.0-pre.44"
   }
 }
