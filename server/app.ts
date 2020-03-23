@@ -8,38 +8,38 @@ import * as path from "path";
  * Express app object to handle server routes, requests, and responses
  */
 class App {
-  public app: express.Application;
+    public app: express.Application;
 
-  constructor() {
-    this.app = express();
-    this.config();
-    this.routes();
-  }
+    constructor() {
+        this.app = express();
+        this.config();
+        this.routes();
+    }
 
-  /**
-   * Configure requests and responses to decode and encode JSON objects
-   */
-  private config(): void {
-    this.app.use(bodyParser.json());
-    this.app.use(
-      bodyParser.urlencoded({
-        extended: false
-      })
-    );
-  }
+    /**
+     * Configure requests and responses to decode and encode JSON objects
+     */
+    private config(): void {
+        this.app.use(bodyParser.json());
+        this.app.use(
+            bodyParser.urlencoded({
+                extended: false
+            })
+        );
+    }
 
-  /**
-   * Create routes for server to handle
-   */
-  private routes(): void {
-    const router = express.Router();
+    /**
+     * Create routes for server to handle
+     */
+    private routes(): void {
+        const router = express.Router();
 
-    router.get("/", (req: Request, res: Response) => {
-      res.sendFile("index.html", { root: path.join(__dirname, "../client") });
-    });
+        router.get("/", (req: Request, res: Response) => {
+            res.sendFile("index.html", { root: path.join(__dirname, "../client") });
+        });
 
-    this.app.use("/", router);
-  }
+        this.app.use("/", router);
+    }
 }
 
 export default new App().app;
