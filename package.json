@@ -18,6 +18,7 @@
     "build-client": "npm run build-client-static",
     "build-client-static": "rm -rf ./build/client && rsync -avrR --exclude='*.ts' ./client ./build",
     "build-server": "npm run lint && tsc --project ./configs/server.json",
+    "build-docs": "./node_modules/.bin/typedoc --out docs/ ./server/ ./client/",
     "check-lint": "echo 'Checking code style' && ./node_modules/.bin/eslint --ext .ts,.js ./server/ ./client/ ./tests/",
     "dev": "npm run lint && ts-node-dev --respawn --transpileOnly ./server/index.ts",
     "lint": "echo 'Formatting code' && ./node_modules/.bin/eslint --fix --ext .ts,.js ./server/ ./client/ ./tests/",
@@ -49,6 +50,7 @@
     "typescript": "^3.8.3"
   },
   "devDependencies": {
-    "ts-node-dev": "^1.0.0-pre.44"
+    "ts-node-dev": "^1.0.0-pre.44",
+    "typedoc": "^0.17.3"
   }
 }
