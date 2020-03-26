@@ -1,7 +1,8 @@
 const BASE = 256;
+const BOUNDARY = 0.25 * BASE;
 
 /** Position identifier */
-export interface Position {
+interface Position {
     digit: number;
     peer: number;
 }
@@ -62,6 +63,7 @@ export function compareIdentifier(id1: Identifier, id2: Identifier): number {
         return 0;
     }
 }
+
 /**
  * Generate a position identifier between two position identifiers.
  *
@@ -74,17 +76,15 @@ function generatePosition(prevPos: Position, nextPos: Position, peer: number): P
     if (nextPos.digit - prevPos.digit <= 1) {
         throw new Error("position ordering");
     }
-    const offset = 0.5 * Math.random() * (nextPos.digit - prevPos.digit);
-    const digit = prevPos.digit + Math.floor(offset) + 1;
+    const min = prevPos.digit + 1;
+    const max = Math.min(nextPos.digit, prevPos.digit + BOUNDARY);
+    const digit = Math.floor(Math.random() * (max - min)) + min;
     return { digit: digit, peer: peer };
 }
+
 /**
  * Generate a position identifier list between two position identifier lists.
- * Recursively examines the most significant digit of both identifiers until a
- * valid position identifier can be generated in-between.
- *
- * **Note:** A valid identifier cannot be generated if `prevId` is not smaller
- * than `nextId`; function raises an exception.
+ * Note that `prevId` must be smaller than `nextId`.
  *
  * @param prevId - Smaller position identifier list
  * @param nextId - Larger position identifier list
