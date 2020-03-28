@@ -170,8 +170,293 @@ describe("crdt", () => {
             crdt.localInsert(deltaInsert);
             crdt.localDelete(deltaDelete1);
             crdt.localDelete(deltaDelete2);
-            let document = toText(crdt.document);
+            const document = toText(crdt.document);
             expect(document).to.deep.equal(["ab"]);
+        });
+    });
+    describe("remoteInsert", () => {
+        it("inserts character into start of document", () => {
+            const crdt = new CRDT(0);
+            crdt.document = [
+                [
+                    { id: [{ digit: 10, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 30, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 40, peer: 1 }], counter: 0, data: "a" }
+                ]
+            ];
+            const ch = { id: [{ digit: 1, peer: 1 }], counter: 0, data: "b" };
+
+            crdt.remoteInsert(ch);
+            const document = toText(crdt.document);
+            expect(document).to.deep.equal(["baaaa"]);
+        });
+        it("inserts character into end of document", () => {
+            const crdt = new CRDT(0);
+            crdt.document = [
+                [
+                    { id: [{ digit: 10, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 30, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 40, peer: 1 }], counter: 0, data: "a" }
+                ]
+            ];
+            const ch = { id: [{ digit: 50, peer: 1 }], counter: 0, data: "b" };
+
+            crdt.remoteInsert(ch);
+            const document = toText(crdt.document);
+            expect(document).to.deep.equal(["aaaab"]);
+        });
+        it("inserts character into end of line", () => {
+            const crdt = new CRDT(0);
+            crdt.document = [
+                [
+                    { id: [{ digit: 10, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 30, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 40, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 50, peer: 1 }], counter: 0, data: "\n" }
+                ],
+                [
+                    { id: [{ digit: 60, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 70, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 80, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 90, peer: 1 }], counter: 0, data: "a" }
+                ]
+            ];
+            const ch = { id: [{ digit: 45, peer: 1 }], counter: 0, data: "b" };
+
+            crdt.remoteInsert(ch);
+            const document = toText(crdt.document);
+            expect(document).to.deep.equal(["aaaab\n", "aaaa"]);
+        });
+        it("inserts character into start of line", () => {
+            const crdt = new CRDT(0);
+            crdt.document = [
+                [
+                    { id: [{ digit: 10, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 30, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 40, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 50, peer: 1 }], counter: 0, data: "\n" }
+                ],
+                [
+                    { id: [{ digit: 60, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 70, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 80, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 90, peer: 1 }], counter: 0, data: "a" }
+                ]
+            ];
+            const ch = { id: [{ digit: 55, peer: 1 }], counter: 0, data: "b" };
+
+            crdt.remoteInsert(ch);
+            const document = toText(crdt.document);
+            expect(document).to.deep.equal(["aaaa\n", "baaaa"]);
+        });
+        it("inserts newline character", () => {
+            const crdt = new CRDT(0);
+            crdt.document = [
+                [
+                    { id: [{ digit: 10, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 30, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 40, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 50, peer: 1 }], counter: 0, data: "\n" }
+                ],
+                [
+                    { id: [{ digit: 60, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 70, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 80, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 90, peer: 1 }], counter: 0, data: "a" }
+                ]
+            ];
+            const ch = { id: [{ digit: 25, peer: 1 }], counter: 0, data: "\n" };
+
+            crdt.remoteInsert(ch);
+            const document = toText(crdt.document);
+            expect(document).to.deep.equal(["aa\n", "aa\n", "aaaa"]);
+        });
+        it("inserts newline character into end of line", () => {
+            const crdt = new CRDT(0);
+            crdt.document = [
+                [
+                    { id: [{ digit: 10, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 30, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 40, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 50, peer: 1 }], counter: 0, data: "\n" }
+                ],
+                [
+                    { id: [{ digit: 60, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 70, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 80, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 90, peer: 1 }], counter: 0, data: "a" }
+                ]
+            ];
+            const ch = { id: [{ digit: 55, peer: 1 }], counter: 0, data: "\n" };
+
+            crdt.remoteInsert(ch);
+            const document = toText(crdt.document);
+            expect(document).to.deep.equal(["aaaa\n", "\n", "aaaa"]);
+        });
+        it("inserts multiple characters into document", () => {
+            const crdt = new CRDT(0);
+            crdt.document = [
+                [
+                    { id: [{ digit: 10, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 30, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 40, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 50, peer: 1 }], counter: 0, data: "\n" }
+                ],
+                [
+                    { id: [{ digit: 60, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 70, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 80, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 90, peer: 1 }], counter: 0, data: "a" }
+                ]
+            ];
+            const ch1 = { id: [{ digit: 24, peer: 1 }], counter: 0, data: "\n" };
+            const ch2 = { id: [{ digit: 74, peer: 1 }], counter: 0, data: "\n" };
+            const ch3 = { id: [{ digit: 26, peer: 1 }], counter: 0, data: "b" };
+            const ch4 = { id: [{ digit: 76, peer: 1 }], counter: 0, data: "b" };
+
+            crdt.remoteInsert(ch1);
+            crdt.remoteInsert(ch2);
+            crdt.remoteInsert(ch3);
+            crdt.remoteInsert(ch4);
+            const document = toText(crdt.document);
+            expect(document).to.deep.equal(["aa\n", "baa\n", "aa\n", "baa"]);
+        });
+    });
+    describe("remoteDelete", () => {
+        it("deletes chracter from start of document", () => {
+            const crdt = new CRDT(0);
+            crdt.document = [
+                [
+                    { id: [{ digit: 10, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 30, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 40, peer: 1 }], counter: 0, data: "a" }
+                ]
+            ];
+            const ch = { id: [{ digit: 10, peer: 1 }], counter: 0, data: "a" };
+
+            crdt.remoteDelete(ch);
+            const document = toText(crdt.document);
+            expect(document).to.deep.equal(["bba"]);
+        });
+        it("deletes character from end of document", () => {
+            const crdt = new CRDT(0);
+            crdt.document = [
+                [
+                    { id: [{ digit: 10, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 30, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 40, peer: 1 }], counter: 0, data: "a" }
+                ]
+            ];
+            const ch = { id: [{ digit: 40, peer: 1 }], counter: 0, data: "a" };
+
+            crdt.remoteDelete(ch);
+            const document = toText(crdt.document);
+            expect(document).to.deep.equal(["abb"]);
+        });
+        it("deletes character from end of line", () => {
+            const crdt = new CRDT(0);
+            crdt.document = [
+                [
+                    { id: [{ digit: 10, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 30, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 40, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 50, peer: 1 }], counter: 0, data: "\n" }
+                ],
+                [
+                    { id: [{ digit: 60, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 70, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 80, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 90, peer: 1 }], counter: 0, data: "a" }
+                ]
+            ];
+            const ch = { id: [{ digit: 40, peer: 1 }], counter: 0, data: "a" };
+
+            crdt.remoteDelete(ch);
+            const document = toText(crdt.document);
+            expect(document).to.deep.equal(["abb\n", "abba"]);
+        });
+        it("deletes character from start of line", () => {
+            const crdt = new CRDT(0);
+            crdt.document = [
+                [
+                    { id: [{ digit: 10, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 30, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 40, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 50, peer: 1 }], counter: 0, data: "\n" }
+                ],
+                [
+                    { id: [{ digit: 60, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 70, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 80, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 90, peer: 1 }], counter: 0, data: "a" }
+                ]
+            ];
+            const ch = { id: [{ digit: 60, peer: 1 }], counter: 0, data: "a" };
+
+            crdt.remoteDelete(ch);
+            const document = toText(crdt.document);
+            expect(document).to.deep.equal(["abba\n", "bba"]);
+        });
+        it("deletes newline character", () => {
+            const crdt = new CRDT(0);
+            crdt.document = [
+                [
+                    { id: [{ digit: 10, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 30, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 40, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 50, peer: 1 }], counter: 0, data: "\n" }
+                ],
+                [
+                    { id: [{ digit: 60, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 70, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 80, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 90, peer: 1 }], counter: 0, data: "a" }
+                ]
+            ];
+            const ch = { id: [{ digit: 50, peer: 1 }], counter: 0, data: "\n" };
+
+            crdt.remoteDelete(ch);
+            const document = toText(crdt.document);
+            expect(document).to.deep.equal(["abbaabba"]);
+        });
+        it("deletes multiple characters from document", () => {
+            const crdt = new CRDT(0);
+            crdt.document = [
+                [
+                    { id: [{ digit: 10, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 30, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 40, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 50, peer: 1 }], counter: 0, data: "\n" }
+                ],
+                [
+                    { id: [{ digit: 60, peer: 1 }], counter: 0, data: "a" },
+                    { id: [{ digit: 70, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 80, peer: 1 }], counter: 0, data: "b" },
+                    { id: [{ digit: 90, peer: 1 }], counter: 0, data: "a" }
+                ]
+            ];
+            const ch1 = { id: [{ digit: 50, peer: 1 }], counter: 0, data: "\n" };
+            const ch2 = { id: [{ digit: 40, peer: 1 }], counter: 0, data: "a" };
+            const ch3 = { id: [{ digit: 60, peer: 1 }], counter: 0, data: "a" };
+
+            crdt.remoteDelete(ch1);
+            crdt.remoteDelete(ch2);
+            crdt.remoteDelete(ch3);
+            const document = toText(crdt.document);
+            expect(document).to.deep.equal(["abbbba"]);
         });
     });
 });
