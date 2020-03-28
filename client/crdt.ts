@@ -168,6 +168,7 @@ export class CRDT {
             this.document[index.row] = this.document[index.row].concat(currentLineAfter);
         }
         this.removeLines();
+        // TODO update editor
     }
 
     /* Insert trailing newline characters */
@@ -186,7 +187,7 @@ export class CRDT {
         }
     }
 
-    /** Find insert/delete index of a character */
+    /* Find insert/delete index of a character */
     private findPosition(ch: Char, op: Operation): Index {
         let min = 0;
         let max = this.document.length - 1;
@@ -230,7 +231,7 @@ export class CRDT {
         throw new Error("character not in document");
     }
 
-    /** Find insert index in a document line */
+    /* Find insert index in a document line */
     private findPositionInsert(ch: Char, row: number): Index {
         let min = 0;
         let max = this.document[row].length;
@@ -250,7 +251,7 @@ export class CRDT {
         return { row: row, column: min };
     }
 
-    /** Find delete index in a document line */
+    /* Find delete index in a document line */
     private findPositionDelete(ch: Char, row: number): Index {
         let min = 0;
         let max = this.document[row].length;
