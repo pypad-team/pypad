@@ -14,25 +14,26 @@
   "author": "collabd",
   "main": "index.js",
   "scripts": {
-    "build": "npm run build-server && npm run build-client",
-    "build-client": "npm run build-client-static",
-    "build-client-static": "rm -rf ./build/client && rsync -avrR --exclude='*.ts' ./client ./build",
-    "build-server": "npm run lint && tsc --project ./configs/server.json",
+    "build": "rm -rf ./build && mkdir ./build && mkdir ./build/client && mkdir ./build/server && npm run lint && npm run build-server && npm run build-client",
+    "build-client": "cp ./client/index.html ./build/client/index.html && cp -r ./client/css ./build/client/css && tsc --project ./configs/client.json",
+    "build-server": "tsc --project ./configs/server.json",
     "build-docs": "./node_modules/.bin/typedoc --out docs/ ./server/ ./client/",
     "check-lint": "echo 'Checking code style' && ./node_modules/.bin/eslint --ext .ts,.js ./server/ ./client/ ./tests/",
-    "dev": "npm run lint && ts-node-dev --respawn --transpileOnly ./server/index.ts",
+    "dev-client": "rm -rf ./build/client && mkdir ./build/client && ln ./client/index.html ./build/client/index.html && cp -r ./client/css ./build/client/css && tsc --watch --project ./configs/client.json",
+    "dev-server": "tsc --watch --project ./configs/server.json",
     "lint": "echo 'Formatting code' && ./node_modules/.bin/eslint --fix --ext .ts,.js ./server/ ./client/ ./tests/",
-    "prod": "npm run lint && npm run test && npm run build && npm start",
+    "prod": "npm run build && npm run test && npm start",
     "start": "node ./build/server/index.js",
     "test": "npm run test-client && npm run test-server",
     "test-client": "echo 'Starting client tests' && mocha -r ts-node/register ./tests/client/*.ts",
-    "test-server": "echo 'Starting server tests' && mocha -r ts-node/register ./tests/server/*.ts",
-    "tsc": "tsc"
+    "test-server": "echo 'Starting server tests' && mocha -r ts-node/register ./tests/server/*.ts"
   },
   "dependencies": {
     "@types/chai": "^4.2.11",
     "@types/express": "^4.17.3",
     "@types/mocha": "^7.0.2",
+    "@types/node": "13.1",
+    "@types/pino": "^5.15.4",
     "@types/sinon": "^7.5.2",
     "@typescript-eslint/eslint-plugin": "^2.24.0",
     "@typescript-eslint/parser": "^2.24.0",
@@ -44,13 +45,13 @@
     "eslint-plugin-tsdoc": "^0.2.3",
     "express": "^4.17.1",
     "mocha": "^7.1.0",
+    "peer": "^0.5.2",
     "prettier": "^1.19.1",
     "sinon": "^9.0.1",
     "ts-node": "^8.6.2",
     "typescript": "^3.8.3"
   },
   "devDependencies": {
-    "ts-node-dev": "^1.0.0-pre.44",
     "typedoc": "^0.17.3"
   }
 }

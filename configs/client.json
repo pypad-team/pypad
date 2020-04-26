@@ -1,7 +1,7 @@
 {
     "extends": "./base.json",
     "compilerOptions": {
-        "outDir": "../build/client"
+        "outDir": "../build/client/js"
     },
-    "include": []
+    "include": ["../client/*.ts"]
 }

@@ -1,6 +1,8 @@
 {
     "extends": "./base.json",
     "compilerOptions": {
+        "module": "commonjs",
+        "moduleResolution": "node",
         "outDir": "../build/server"
     },
     "include": ["../server/*.ts"]

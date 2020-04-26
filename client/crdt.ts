@@ -277,7 +277,7 @@ export class CRDT {
             return this.document[index.row][index.column - 1];
         } else {
             if (index.row == 0) {
-                return { id: [], counter: null, data: null };
+                return { id: [] };
             } else {
                 return this.document[index.row - 1][this.document[index.row - 1].length - 1];
             }
@@ -288,7 +288,7 @@ export class CRDT {
     private findNextChar(index: Index): Char {
         const lineLength = this.document[index.row].length;
         if (index.column === lineLength) {
-            return { id: [], counter: null, data: null };
+            return { id: [] };
         } else {
             return this.document[index.row][index.column];
         }
