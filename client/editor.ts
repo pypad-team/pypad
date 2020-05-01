@@ -4,4 +4,5 @@ import { Index } from "./crdt";
 export interface EditorInterface {
     editorInsert(index: Index, ch: string): void;
     editorDelete(index: Index): void;
+    [prop: string]: any; // avoid explicit any (?)
 }

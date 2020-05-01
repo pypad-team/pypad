@@ -4,4 +4,5 @@ import { MessageInterface } from "./message";
 export interface ConnectionInterface {
     isConnected(): boolean;
     sendMessage(msg: MessageInterface): void;
+    [prop: string]: any; // avoid explicit any (?)
 }

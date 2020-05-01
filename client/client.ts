@@ -8,4 +8,5 @@ export interface ClientInterface {
     editor: EditorInterface;
     connection: ConnectionInterface;
     crdt: CRDT;
+    [prop: string]: any; // avoid explicit any (?)
 }

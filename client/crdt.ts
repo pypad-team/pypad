@@ -126,7 +126,7 @@ export class CRDT {
                         currentRow--;
                         currentColumn = this.document[currentRow].length - 1;
                     }
-                    const currentChar = this.document[currentRow].splice(currentColumn, 1);
+                    const currentChar = this.document[currentRow].splice(currentColumn, 1)[0];
                     deleted.push(currentChar);
                     currentColumn--;
                     if (ch === "\n") {
