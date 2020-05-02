@@ -110,7 +110,7 @@ class Connection {
         if (!this.isConnectionLive()) {
             throw new InvalidActionError("Not connected to peer-to-peer network.");
         }
-        this.peerConnections.forEach((connection: any, id: string) => {
+        this.peerConnections.forEach((connection: any, id: string): void => {
             connection.send(message);
         });
     }
@@ -137,24 +137,36 @@ class Connection {
         // Create new connection to TURN server if no live connection exists
         if (this.turnServerConnection === undefined || this.turnServerConnection.destroyed) {
             this.turnServerConnection = Peer();
-            this.turnServerConnection.on("open", ((id: string) => {
-                this.connectedToServer = true;
-                this.id = id;
-            }).bind(this));
+            this.turnServerConnection.on(
+                "open",
+                ((id: string): void => {
+                    this.connectedToServer = true;
+                    this.id = id;
+                }).bind(this)
+            );
             // Disconnect from TURN server if an error was found
-            this.turnServerConnection.on("error", ((error: any) => {
-                this.turnServerConnection.disconnect();
-            }).bind(this));
+            this.turnServerConnection.on(
+                "error",
+                ((error: any): void => {
+                    this.turnServerConnection.disconnect();
+                }).bind(this)
+            );
             // Reset the ID and disconnect if connection was destroyed
-            this.turnServerConnection.on("close", (() => {
-                this.id = "";
-                this.connectedToServer = false;
-                this.handleDisconnect();
-            }).bind(this));
-            this.turnServerConnection.on("disconnected", (() => {
-                this.connectedToServer = false;
-                this.handleDisconnect();
-            }).bind(this));
+            this.turnServerConnection.on(
+                "close",
+                ((): void => {
+                    this.id = "";
+                    this.connectedToServer = false;
+                    this.handleDisconnect();
+                }).bind(this)
+            );
+            this.turnServerConnection.on(
+                "disconnected",
+                ((): void => {
+                    this.connectedToServer = false;
+                    this.handleDisconnect();
+                }).bind(this)
+            );
             this.turnServerConnection.on("connection", this.acceptConnections.bind(this));
         } else if (this.turnServerConnection.disconnected) {
             this.turnServerConnection.reconnect();
@@ -168,16 +180,25 @@ class Connection {
             this.peerConnections.set(this.hostID, hostConnection);
             hostConnection.on("data", this.processMessage.bind(this));
             // Disconnect from host if error was found
-            hostConnection.on("error", ((error: any) => {
-                hostConnection.close();
-            }).bind(this));
-            hostConnection.on("close", (() => {
-                this.connectedToHost = false;
-                this.handleDisconnect();
-            }).bind(this));
-            hostConnection.on("open", (() => {
-                this.connectedToHost = true;
-            }).bind(this));
+            hostConnection.on(
+                "error",
+                ((error: any): void => {
+                    hostConnection.close();
+                }).bind(this)
+            );
+            hostConnection.on(
+                "close",
+                ((): void => {
+                    this.connectedToHost = false;
+                    this.handleDisconnect();
+                }).bind(this)
+            );
+            hostConnection.on(
+                "open",
+                ((): void => {
+                    this.connectedToHost = true;
+                }).bind(this)
+            );
         } else {
             this.connectedToHost = true;
         }
@@ -193,7 +214,7 @@ class Connection {
         if (this.isConnectionLive()) {
             throw new InvalidActionError("Still connected to peer-to-peer network.");
         }
-        this.peerConnections.forEach((connection: any, id: string) => {
+        this.peerConnections.forEach((connection: any, id: string): void => {
             connection.close();
             this.peerConnections.delete(id);
         });
@@ -217,24 +238,39 @@ class Connection {
         }
         this.peerConnections.set(connection.peer, connection);
 
-        connection.on("data", ((message: any) => {
-            this.processMessage(message);
-            this.sendMessageToPeers(message);
-        }).bind(this));
-        connection.on("error", ((error: any) => {
-            connection.close();
-        }).bind(this));
-        connection.on("close", (() => {
-            if (this.peerConnections.has(connection.peer)) {
-                this.peerConnections.delete(connection.peer);
-            }
-        }).bind(this));
+        connection.on(
+            "data",
+            ((message: any): void => {
+                this.processMessage(message);
+                this.sendMessageToPeers(message);
+            }).bind(this)
+        );
+        connection.on(
+            "error",
+            ((error: any): void => {
+                connection.close();
+            }).bind(this)
+        );
+        connection.on(
+            "close",
+            ((): void => {
+                if (this.peerConnections.has(connection.peer)) {
+                    this.peerConnections.delete(connection.peer);
+                }
+            }).bind(this)
+        );
 
-        connection.on("open", (() => {
-            connection.send({initial: true}/** TODO: send initial CRDT state */)
-        }).bind(this));
+        connection.on(
+            "open",
+            ((): void => {
+                connection.send({ initial: true } /** TODO: send initial CRDT state */);
+            }).bind(this)
+        );
     }
 
+    /**
+     * Continuously try to reconnect if not connected
+     */
     private tryReconnect(): void {
         const RETRY_INTERVAL = 1000;
         if (this.isConnectionLive()) {
