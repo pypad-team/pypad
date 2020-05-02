@@ -5,13 +5,15 @@
     <link rel="stylesheet" type="text/css" href="/css/editor.css">
 </head>
 <body>
+    
     <div id="editor">Start typing here!</div>
-
+    <button id="share" onclick="client.copyConnectLink();">Copy Share Link</button>
     <script src="https://pagecdn.io/lib/ace/1.4.11/ace.min.js" crossorigin="anonymous" integrity="sha256-qCCcAHv/Z0u7K344shsZKUF2NR+59ooA3XWRj0LPGIQ="></script>
     <script src="https://pagecdn.io/lib/ace/1.4.11/theme-solarized_dark.min.js" crossorigin="anonymous"></script>
     <script src="https://pagecdn.io/lib/ace/1.4.11/mode-python.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/peerjs@0.3.20/dist/peer.min.js" crossorigin="anonymous"></script>
     <script src="/js/types.js"></script>
+    <script src="/js/crdt.js"></script>
     <script src="/js/connection.js"></script>
     <script src="/js/editor.js"></script>
     <script src="/js/client.js"></script>

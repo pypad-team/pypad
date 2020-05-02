@@ -5,3 +5,9 @@
     bottom: 0;
     left: 0;
 }
+
+#share {
+    position: absolute;
+    top: 0;
+    right: 0;
+}

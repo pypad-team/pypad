@@ -1,165 +1,248 @@
+declare const Peer: any;
+
 /**
- * Object to handle connection in peer-to-peer network
+ * Object to handle connection in peer-to-peer work
  */
 class Connection {
-    private serverConnection: any;
-    private hostConnection?: any;
-    private peerConnections?: Map<string, any>;
-    private connected: boolean;
-    private timedOut?: boolean;
+    private hostID: string;
     private id: string;
-    private status: Status;
-    public hostID: string;
+    private client: any;
 
-    constructor(hostID: string) {
-        this.id = "";
-        this.status = (hostID === "") ? Status.Host : Status.Follower;
+    private isHost: boolean;
+    private connectedToServer: boolean;
+    private connectedToHost: boolean;
+    private attemptingReconnect: boolean;
+
+    private turnServerConnection?: any;
+    private peerConnections: Map<string, any>;
+
+    constructor(hostID: string, client: any) {
         this.hostID = hostID;
+        this.id = "";
+        this.client = client;
 
-        this.connectToServer();
-        // Set background listeners depending on status of client
-        if (this.status === Status.Follower) {
-            this.connectToHost();
-            this.listenHeartbeats()
-            this.connected = false;
-        } else if (this.status === Status.Host) {
-            this.peerConnections = new Map();
-            this.listenConnection();
-            this.sendHeartbeats();
-            this.connected = true;
-        }
-    } 
+        this.isHost = hostID === "";
+        this.connectedToServer = false;
+        this.connectedToHost = false;
+        this.attemptingReconnect = false;
 
-    /**
-     * Get the current connection status in peer network
-     */
-    public isConnected(): boolean {
-        return this.connected;
+        this.peerConnections = new Map<string, any>();
+        this.connectToNetwork();
     }
 
     /**
-     * Given a message, broadcast it to other peers by sending it to the host
-     * @param message - message to broadcast to peers
+     * Returns the connection status in peer-to-peer network
+     *
+     * @returns true if connection is host or if connection is connected to host and
+     *  connection has been assigned an ID by TURN server
      */
-    public broadcastMessage(message: object): void {
-        if ((this.status === Status.Follower) && (this.hostConnection !== undefined)) {
-            this.hostConnection.send(message);
-        }
+    public isConnectionLive(): boolean {
+        return this.connectedToServer && this.connectedToHost;
     }
 
     /**
-     * Listen for new messages from host
+     * Send message to peers in peer-to-peer network
+     *
+     * @param message - Message to send to peers in network
+     * @returns true if message is successfully sent, false otherwise
      */
-    private listenHostMessages(): void {
-        if (this.status === Status.Host) {
-            throw new InvalidActionError("Client is host and tried to listen for host messages.");
-        }
-        if (this.hostConnection === undefined) {
-            throw new InvalidActionError("Connection not properly initialized - no host connection found");
-        }
-        // Create listener to digest messages from host
-        this.hostConnection.on("data", (data: any) => {
-            this.timedOut = false;
-            // TODO: send data to CRDT
-        });
-    }
-
-    /**
-     * Forward messages from peer in network to all other peers
-     * @param sourceID - ID of peer sending the message
-     * @param message - message to send forward to other peers
-     */
-    private forwardMessage(sourceID: string, message: object): void {
-        if (this.status !== Status.Host) {
-            throw new InvalidActionError("Client is not host and tried to forward messages to network.");
-        }
-        if (this.peerConnections === undefined) {
-            throw new InvalidActionError("Connection not properly initialized - no peer connections found for host.");
-        }
-
-        this.peerConnections.forEach((conn: any, id: string) => {
-            if (id !== sourceID) {
-                conn.send(message);
+    public sendMessage(message: any): boolean {
+        try {
+            if (this.isHost) {
+                this.sendMessageToPeers(message);
+            } else {
+                this.sendMessageToHost(message);
             }
-        });
-    }
-
-    /**
-     * Connect to TURN server
-     */
-    private connectToServer(): void {
-        this.serverConnection = Peer();
-
-        this.serverConnection.on("open", (id: string) => {
-            this.id = id;
-        });
-    }
-
-    /**
-     * Connect to the host of peer network
-     */
-    private connectToHost(): void {
-        if (this.status === Status.Host) {
-            throw new InvalidActionError("Client is a host but tried to connect to another host.");
+            return true;
+        } catch (error) {
+            return false;
         }
-        this.hostConnection = this.serverConnection.connect(this.hostID);
-        this.listenHostMessages();
-        this.connected = true;
     }
 
     /**
-     * Listen for new connections as host from new peers joining the network
+     * Returns the ID of the host in the peer-to-peer network
+     *
+     * @returns ID of the host in the peer-to-peer network
+     *
+     * @throws {@link InvalidActionError}
+     * Thrown if host not yet assigned an ID
      */
-    private listenConnection(): void {
-        if (this.status !== Status.Host) {
-            throw new InvalidActionError("Client is not host but tried to listen for new connections to peer network.");
-        }
-        // Create listener to save new peer connections to network
-        this.serverConnection.on("connection", (conn: any) => {
-            if (this.peerConnections === undefined) {
-                throw new InvalidActionError("Connection not properly initialized - no peer connections found for host.");
+    public getHostID(): string {
+        if (this.isHost) {
+            if (this.id === "") {
+                throw new InvalidActionError("Host has not yet been assigned an ID.");
             }
-            this.peerConnections.set(conn.peer, conn);
-            // Create listener to close and delete peer if connection has an error
-            conn.on("error", (err: any) => {
-                conn.close();
-                this.peerConnections.delete(conn.peer);
-            })
-            // Create listener to forward messages received from peer
-            conn.on("data", (data: any) => {
-                this.forwardMessage(conn.peer, data);
-            })
+            return this.id;
+        }
+        return this.hostID;
+    }
+
+    /**
+     * Send message to host in peer-to-peer network if and only if connected
+     *
+     * @param message - Message to send to peers in network
+     * @returns true if message is successfully sent, false otherwise
+     *
+     * @throws {@link InvalidActionError}
+     * Thrown if not connected to peer-to-peer network
+     */
+    private sendMessageToHost(message: any): void {
+        if (!this.isConnectionLive()) {
+            throw new InvalidActionError("Not connected to peer-to-peer network.");
+        }
+        const connection = this.peerConnections.get(this.hostID);
+        if (connection === undefined) {
+            throw new InvalidActionError("Not connected to peer-to-peer network.");
+        }
+        connection.send(message);
+    }
+
+    /**
+     * Send message to peers in peer-to-peer network
+     *
+     * @param message - Message to send to peers in network
+     * @returns true if message is successfully sent, false otherwise
+     *
+     * @throws {@link InvalidActionError}
+     * Thrown if not connected to peer-to-peer network
+     */
+    private sendMessageToPeers(message: any): void {
+        if (!this.isConnectionLive()) {
+            throw new InvalidActionError("Not connected to peer-to-peer network.");
+        }
+        this.peerConnections.forEach((connection: any, id: string) => {
+            connection.send(message);
         });
     }
 
     /**
-     * Send heartbeats from host to followers periodically to maintain connectivity
+     * Process message received from peers
+     *
+     * @param message - Message received from peers
      */
-    private sendHeartbeats(): void {
-        const HEARTBEAT_INTERVAL = 100;
-        if (this.peerConnections === undefined) {
-            throw new InvalidActionError("Connection not properly initialized - no peer connections found for host.");
-        }
-
-        this.peerConnections.forEach((conn: any, id: string) => {
-            conn.send({});
-        });
-
-        if (this.status === Status.Host) {
-            setTimeout(this.sendHeartbeats.bind(this), HEARTBEAT_INTERVAL);
-        }
+    private processMessage(message: any): void {
+        console.log(message);
     }
-    
+
     /**
-     * Listen for heartbeats from host to determine connectivity
+     * Connect to peer-to-peer network if not connected
+     *
+     * @throws {@link InvalidActionError}
+     * Thrown if already connected to peer-to-peer network
      */
-    private listenHeartbeats(): void {
-        const TIMEOUT = 1000;
-        if ((this.timedOut === undefined) || (!this.timedOut)) {
-            this.timedOut = true;
-            setTimeout(this.listenHeartbeats.bind(this), TIMEOUT);
+    private connectToNetwork(): void {
+        if (this.isConnectionLive()) {
+            throw new InvalidActionError("Already connected to peer-to-peer network.");
+        }
+        // Create new connection to TURN server if no live connection exists
+        if (this.turnServerConnection === undefined || this.turnServerConnection.destroyed) {
+            this.turnServerConnection = Peer();
+            this.turnServerConnection.on("open", ((id: string) => {
+                this.connectedToServer = true;
+                this.id = id;
+            }).bind(this));
+            // Disconnect from TURN server if an error was found
+            this.turnServerConnection.on("error", ((error: any) => {
+                this.turnServerConnection.disconnect();
+            }).bind(this));
+            // Reset the ID and disconnect if connection was destroyed
+            this.turnServerConnection.on("close", (() => {
+                this.id = "";
+                this.connectedToServer = false;
+                this.handleDisconnect();
+            }).bind(this));
+            this.turnServerConnection.on("disconnected", (() => {
+                this.connectedToServer = false;
+                this.handleDisconnect();
+            }).bind(this));
+            this.turnServerConnection.on("connection", this.acceptConnections.bind(this));
+        } else if (this.turnServerConnection.disconnected) {
+            this.turnServerConnection.reconnect();
+        }
+
+        if (!this.isHost) {
+            // Create reliable connection channel to host if connection is not host
+            const hostConnection = this.turnServerConnection.connect(this.hostID, {
+                reliable: true
+            });
+            this.peerConnections.set(this.hostID, hostConnection);
+            hostConnection.on("data", this.processMessage.bind(this));
+            // Disconnect from host if error was found
+            hostConnection.on("error", ((error: any) => {
+                hostConnection.close();
+            }).bind(this));
+            hostConnection.on("close", (() => {
+                this.connectedToHost = false;
+                this.handleDisconnect();
+            }).bind(this));
+            hostConnection.on("open", (() => {
+                this.connectedToHost = true;
+            }).bind(this));
         } else {
-            this.connected = false;
+            this.connectedToHost = true;
         }
+    }
+
+    /**
+     * Handle disconnect from peer-to-peer network, resetting all proper variables
+     *
+     * @throws {@link InvalidActionError}
+     * Thrown if still connected to peer-to-peer network
+     */
+    private handleDisconnect(): void {
+        if (this.isConnectionLive()) {
+            throw new InvalidActionError("Still connected to peer-to-peer network.");
+        }
+        this.peerConnections.forEach((connection: any, id: string) => {
+            connection.close();
+            this.peerConnections.delete(id);
+        });
+        if (!this.attemptingReconnect) {
+            this.attemptingReconnect = true;
+            this.tryReconnect();
+        }
+    }
+
+    /**
+     * Accept connections from new peers to join peer-to-peer network
+     *
+     * @param connection - Connection to peer joining the network
+     * @throws {@link InvalidActionError}
+     * Thrown if not host in peer-to-peer network
+     */
+    private acceptConnections(connection: any): void {
+        if (!this.isHost) {
+            connection.close();
+            throw new InvalidActionError("Not the host in peer-to-peer network");
+        }
+        this.peerConnections.set(connection.peer, connection);
+
+        connection.on("data", ((message: any) => {
+            this.processMessage(message);
+            this.sendMessageToPeers(message);
+        }).bind(this));
+        connection.on("error", ((error: any) => {
+            connection.close();
+        }).bind(this));
+        connection.on("close", (() => {
+            if (this.peerConnections.has(connection.peer)) {
+                this.peerConnections.delete(connection.peer);
+            }
+        }).bind(this));
+
+        connection.on("open", (() => {
+            connection.send({initial: true}/** TODO: send initial CRDT state */)
+        }).bind(this));
+    }
+
+    private tryReconnect(): void {
+        const RETRY_INTERVAL = 1000;
+        if (this.isConnectionLive()) {
+            this.attemptingReconnect = false;
+            return;
+        }
+
+        this.connectToNetwork();
+        setTimeout(this.tryReconnect.bind(this), RETRY_INTERVAL);
     }
 }

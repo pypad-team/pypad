@@ -1,3 +1,5 @@
+declare const ace: any;
+
 /**
  * Editor wrapper to handle front-end display of data
  */
