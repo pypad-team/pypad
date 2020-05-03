@@ -9,12 +9,13 @@ function getHostID(): string {
  * Object to manage client data for collaborative editor
  */
 class Client {
-    private editor: Editor;
-    private connection: Connection;
+    public editor: Editor;
+    public connection: Connection;
 
     constructor() {
         this.editor = new Editor(this);
         this.connection = new Connection(getHostID(), this);
+        this.editor.disable();
     }
 
     /**

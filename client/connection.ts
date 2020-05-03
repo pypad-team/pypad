@@ -43,10 +43,14 @@ class Connection {
     /**
      * Send message to peers in peer-to-peer network
      *
-     * @param message - Message to send to peers in network
+     * @param payload - Message to send to peers in network
      * @returns true if message is successfully sent, false otherwise
      */
-    public sendMessage(message: any): boolean {
+    public sendMessage(payload: any): boolean {
+        const message = {
+            source: this.id,
+            payload: payload
+        };
         try {
             if (this.isHost) {
                 this.sendMessageToPeers(message);
@@ -111,7 +115,9 @@ class Connection {
             throw new InvalidActionError("Not connected to peer-to-peer network.");
         }
         this.peerConnections.forEach((connection: any, id: string): void => {
-            connection.send(message);
+            if (message.source !== id) {
+                connection.send(message);
+            }
         });
     }
 
@@ -121,7 +127,38 @@ class Connection {
      * @param message - Message received from peers
      */
     private processMessage(message: any): void {
+        const payload = message.payload;
         console.log(message);
+        // TODO: process messages
+
+        /** Manual tests: replace with real message parsing */
+        if (payload.type === "cursor") {
+            const cursor = {
+                startRow: payload.startRow,
+                endRow: payload.endRow,
+                startColumn: payload.startColumn,
+                endColumn: payload.endColumn,
+                color: {
+                    r: payload.r,
+                    g: payload.g,
+                    b: payload.b
+                },
+                label: Math.random()
+            };
+            this.client.editor.setCursor(cursor, "");
+        } else if (payload.type === "text") {
+            if (payload.delta.action === "insert") {
+                this.client.editor.insert(payload.delta.lines[0], payload.delta.start.row, payload.delta.start.column);
+            } else if (payload.delta.action === "remove") {
+                this.client.editor.remove(
+                    payload.delta.start.row,
+                    payload.delta.end.row,
+                    payload.delta.start.column,
+                    payload.delta.end.column
+                );
+            }
+        }
+        /** end */
     }
 
     /**
@@ -140,6 +177,9 @@ class Connection {
             this.turnServerConnection.on(
                 "open",
                 ((id: string): void => {
+                    if (this.connectedToHost) {
+                        this.client.editor.enable();
+                    }
                     this.connectedToServer = true;
                     this.id = id;
                 }).bind(this)
@@ -196,6 +236,9 @@ class Connection {
             hostConnection.on(
                 "open",
                 ((): void => {
+                    if (this.connectedToServer) {
+                        this.client.editor.enable();
+                    }
                     this.connectedToHost = true;
                 }).bind(this)
             );
@@ -214,6 +257,7 @@ class Connection {
         if (this.isConnectionLive()) {
             throw new InvalidActionError("Still connected to peer-to-peer network.");
         }
+        this.client.editor.disable();
         this.peerConnections.forEach((connection: any, id: string): void => {
             connection.close();
             this.peerConnections.delete(id);
@@ -263,7 +307,10 @@ class Connection {
         connection.on(
             "open",
             ((): void => {
-                connection.send({ initial: true } /** TODO: send initial CRDT state */);
+                // TODO: send initial CRDT state
+                this.sendMessage({
+                    type: "initial"
+                });
             }).bind(this)
         );
     }
