@@ -4,7 +4,7 @@ const BOUNDARY = 0.25 * BASE;
 /** Position identifier */
 interface Position {
     digit: number;
-    peer: number;
+    peer: string;
 }
 
 /** Position identifier list */
@@ -72,7 +72,7 @@ export function compareIdentifier(id1: Identifier, id2: Identifier): number {
  * @param peer - Peer identifer of the function caller
  * @returns - Generated position identifier
  */
-function generatePosition(prevPos: Position, nextPos: Position, peer: number): Position {
+function generatePosition(prevPos: Position, nextPos: Position, peer: string): Position {
     if (nextPos.digit - prevPos.digit <= 1) {
         throw new Error("position ordering");
     }
@@ -96,7 +96,7 @@ export function generateIdentifier(
     prevId: Identifier,
     nextId: Identifier,
     currentId: Identifier,
-    peer: number
+    peer: string
 ): Identifier {
     const [prevHead, ...prevTail] = prevId;
     const [nextHead, ...nextTail] = nextId;

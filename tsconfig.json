@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "strict": true,
+        "noImplicitAny": false,
+        "noImplicitReturns": true,
+        "outDir": "./build/server/"
+    },
+    "include": [
+        "./server/*.ts"
+    ]
+}

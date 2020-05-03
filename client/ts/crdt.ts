@@ -1,3 +1,5 @@
+import { MessageType } from "./message";
+import { ClientInterface } from "./client";
 import { Char, compareChar } from "./char";
 import { generateIdentifier } from "./identifier";
 
@@ -6,7 +8,7 @@ enum Operation {
     Delete
 }
 
-interface Index {
+export interface Index {
     row: number;
     column: number;
 }
@@ -41,7 +43,7 @@ export class CRDT {
     public counter: number;
     public document: Char[][];
 
-    public constructor(public peer: number) {
+    public constructor(public uuid: string, public client: ClientInterface) {
         this.counter = 0;
         this.document = [[]];
     }
@@ -65,7 +67,7 @@ export class CRDT {
         const nextChar = this.findNextChar(delta.start);
 
         // array of inserted character objects
-        const inserted = [];
+        const inserted: Char[] = [];
 
         lines.forEach(line => {
             Array.from(line).forEach(ch => {
@@ -88,7 +90,11 @@ export class CRDT {
         if (currentColumn !== delta.end.column) {
             throw new Error("incorrect indices");
         }
-        // TODO broadcast
+        // broadcast inserted character objects
+        inserted.forEach(ch => {
+            const msg = { msgType: MessageType.Insert, sourceID: this.client.connection.id, ch: ch };
+            this.client.connection.sendMessage(msg);
+        });
     }
 
     /**
@@ -108,7 +114,7 @@ export class CRDT {
         let currentColumn = delta.end.column - 1;
 
         // array of deleted character objects
-        const deleted = [];
+        const deleted: Char[] = [];
 
         // NOTE: deleting multiple lines can be optimized
         lines.reverse().forEach(line => {
@@ -120,7 +126,7 @@ export class CRDT {
                         currentRow--;
                         currentColumn = this.document[currentRow].length - 1;
                     }
-                    const currentChar = this.document[currentRow].splice(currentColumn, 1);
+                    const currentChar = this.document[currentRow].splice(currentColumn, 1)[0];
                     deleted.push(currentChar);
                     currentColumn--;
                     if (ch === "\n") {
@@ -135,7 +141,11 @@ export class CRDT {
         if (currentColumn !== delta.start.column - 1) {
             throw new Error("incorrect indices");
         }
-        // TODO broadcast
+        // broadcast deleted character objects
+        deleted.forEach(ch => {
+            const msg = { msgType: MessageType.Delete, sourceID: this.client.connection.id, ch: ch };
+            this.client.connection.sendMessage(msg);
+        });
     }
 
     /**
@@ -151,7 +161,8 @@ export class CRDT {
             const currentLineAfter = this.document[index.row].splice(index.column + 1);
             this.document.splice(index.row + 1, 0, currentLineAfter);
         }
-        // TODO update editor
+        // update local editor
+        this.client.editor.editorInsert(index, ch.data);
     }
 
     /**
@@ -168,7 +179,9 @@ export class CRDT {
             this.document[index.row] = this.document[index.row].concat(currentLineAfter);
         }
         this.removeLines();
-        // TODO update editor
+        // update local editor
+        // TODO: add startRange and endRange
+        this.client.editor.editorDelete(index, index);
     }
 
     /* Insert trailing newline characters */
@@ -277,7 +290,7 @@ export class CRDT {
             return this.document[index.row][index.column - 1];
         } else {
             if (index.row == 0) {
-                return { id: [] };
+                return { id: [], counter: 0, data: "" };
             } else {
                 return this.document[index.row - 1][this.document[index.row - 1].length - 1];
             }
@@ -288,7 +301,7 @@ export class CRDT {
     private findNextChar(index: Index): Char {
         const lineLength = this.document[index.row].length;
         if (index.column === lineLength) {
-            return { id: [] };
+            return { id: [], counter: 0, data: "" };
         } else {
             return this.document[index.row][index.column];
         }
@@ -296,7 +309,7 @@ export class CRDT {
 
     /* Generate character between `prevChar` and `nextChar` */
     private generateChar(prevChar: Char, nextChar: Char, data: string): Char {
-        const id = generateIdentifier(prevChar.id, nextChar.id, [], this.peer);
+        const id = generateIdentifier(prevChar.id, nextChar.id, [], this.uuid);
         return { id: id, counter: this.counter, data: data };
     }
 }

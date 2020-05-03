@@ -1,47 +1,35 @@
-declare const ace: any;
+import * as ace from "ace-builds/src-noconflict/ace";
+import "ace-builds/src-noconflict/mode-python";
+import "ace-builds/src-noconflict/theme-nord_dark";
 
-interface Color {
-    r: number;
-    g: number;
-    b: number;
+import { ClientInterface } from "./client";
+import { Index } from "./crdt";
+import { Cursor, RemoteCursor } from "./cursor";
+import { MessageType } from "./message";
+
+/* TODO document */
+export interface EditorInterface {
+    editorInsert(index: Index, ch: string): void;
+    editorDelete(startIndex: Index, endIndex: Index): void;
+    [prop: string]: any; // avoid explicit any (?)
 }
 
-interface Cursor {
-    type?: string;
-    startRow: number;
-    endRow: number;
-    startColumn: number;
-    endColumn: number;
-    color: Color;
-    label: string;
-}
-
-interface RemoteCursor {
-    cursor: Cursor;
-    id?: number;
-}
-
-/**
- * Editor wrapper to handle front-end display of data
- */
-class Editor {
-    private client: Client;
+/* TODO document */
+export class Editor implements EditorInterface {
+    private client: ClientInterface;
     private editor: any;
-    private theme: string;
-    private mode: string;
     private enabled: boolean;
     private remoteCursors: Map<string, RemoteCursor>;
 
-    constructor(client: any, elementID = "editor", theme = "solarized_dark", mode = "python") {
+    constructor(client: ClientInterface, elementID = "editor") {
         this.client = client;
-        this.editor = ace.edit(elementID);
-        this.theme = theme;
-        this.mode = mode;
+        this.editor = ace.edit(elementID, {
+            mode: "ace/mode/python",
+            theme: "ace/theme/nord_dark"
+        });
         this.enabled = false;
         this.remoteCursors = new Map<string, RemoteCursor>();
 
-        this.setTheme(theme);
-        this.setMode(mode);
         this.listenLocalChanges();
         this.listenCursorChanges();
     }
@@ -49,29 +37,22 @@ class Editor {
     /**
      * Insert text into the editor at given row and column of the editor
      *
-     * @param text - Text to insert into editor
-     * @param row - Row (line number) to insert text at
-     * @param column - Column (char number in line) to insert text at
+     * @param index - TODO
+     * @param ch - TODO
      */
-    public insert(text: string, row: number, column: number): void {
-        const position = {
-            row: row,
-            column: column
-        };
-        this.editor.session.insert(position, text);
+    public editorInsert(index: Index, ch: string): void {
+        this.editor.session.insert(index, ch);
     }
 
     /**
      * Remove text from editor within a given range
      *
-     * @param startRow - Starting row to remove text from
-     * @param endRow - Ending row to remove text from
-     * @param startColumn - Starting column to remove text from
-     * @param endColumn - Ending column to remove text from
+     * @param startIndex - TODO
+     * @param endIndex - TODO
      */
-    public remove(startRow: number, endRow: number, startColumn: number, endColumn: number): void {
-        const range = new ace.Range(startRow, startColumn, endRow, endColumn);
-        this.editor.session.replace(range, "");
+    public editorDelete(startIndex: Index, endIndex: Index): void {
+        const deleteRange = new ace.Range(startIndex.row, startIndex.column, endIndex.row, endIndex.column);
+        this.editor.session.replace(deleteRange, "");
     }
 
     /**
@@ -187,26 +168,6 @@ class Editor {
     }
 
     /**
-     * Set the theme for the editor
-     *
-     * @param theme - theme for the editor
-     */
-    public setTheme(theme: string): void {
-        this.theme = theme;
-        this.editor.setTheme(`ace/theme/${this.theme}`);
-    }
-
-    /**
-     * Set the mode for the editor
-     *
-     * @param mode - mode for the editor
-     */
-    public setMode(mode: string): void {
-        this.mode = mode;
-        this.editor.session.setMode(`ace/mode/${this.mode}`);
-    }
-
-    /**
      * Listen for local changes in editor to update CRDT
      */
     private listenLocalChanges(): void {
@@ -219,7 +180,8 @@ class Editor {
 
                     /** Manual tests: replace with real change message */
                     this.client.connection.sendMessage({
-                        type: "text",
+                        sourceID: this.client.connection.id,
+                        msgType: MessageType.TextDelta,
                         delta: delta
                     });
                     /** end */
@@ -240,7 +202,8 @@ class Editor {
 
                 /** Manual tests: replace with real cursor updates */
                 this.client.connection.sendMessage({
-                    type: "cursor",
+                    sourceID: this.client.connection.id,
+                    msgType: MessageType.Cursor,
                     startRow: cursorRange.start.row,
                     endRow: cursorRange.end.row,
                     startColumn: cursorRange.start.column,

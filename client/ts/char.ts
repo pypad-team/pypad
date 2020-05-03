@@ -3,8 +3,8 @@ import { Identifier, compareIdentifier } from "./identifier";
 /** Character object */
 export interface Char {
     id: Identifier;
-    counter?: number;
-    data?: string;
+    counter: number;
+    data: string;
 }
 
 /**

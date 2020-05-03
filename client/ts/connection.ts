@@ -1,9 +1,18 @@
+// import * as peer from "peerjs";
 declare const Peer: any;
 
-/**
- * Object to handle connection in peer-to-peer work
- */
-class Connection {
+import { InvalidActionError } from "./errors";
+import { MessageInterface, MessageType } from "./message";
+
+/* TODO document */
+export interface ConnectionInterface {
+    isConnectionLive(): boolean;
+    sendMessage(msg: MessageInterface): void;
+    [prop: string]: any; // avoid explicit any (?)
+}
+
+/* TODO document */
+export class Connection implements ConnectionInterface {
     private hostID: string;
     private id: string;
     private client: any;
@@ -43,19 +52,15 @@ class Connection {
     /**
      * Send message to peers in peer-to-peer network
      *
-     * @param payload - Message to send to peers in network
+     * @param msg - Message to send to peers in network
      * @returns true if message is successfully sent, false otherwise
      */
-    public sendMessage(payload: any): boolean {
-        const message = {
-            source: this.id,
-            payload: payload
-        };
+    public sendMessage(msg: MessageInterface): boolean {
         try {
             if (this.isHost) {
-                this.sendMessageToPeers(message);
+                this.sendMessageToPeers(msg);
             } else {
-                this.sendMessageToHost(message);
+                this.sendMessageToHost(msg);
             }
             return true;
         } catch (error) {
@@ -84,13 +89,13 @@ class Connection {
     /**
      * Send message to host in peer-to-peer network if and only if connected
      *
-     * @param message - Message to send to peers in network
+     * @param msg - Message to send to peers in network
      * @returns true if message is successfully sent, false otherwise
      *
      * @throws {@link InvalidActionError}
      * Thrown if not connected to peer-to-peer network
      */
-    private sendMessageToHost(message: any): void {
+    private sendMessageToHost(msg: MessageInterface): void {
         if (!this.isConnectionLive()) {
             throw new InvalidActionError("Not connected to peer-to-peer network.");
         }
@@ -98,25 +103,25 @@ class Connection {
         if (connection === undefined) {
             throw new InvalidActionError("Not connected to peer-to-peer network.");
         }
-        connection.send(message);
+        connection.send(msg);
     }
 
     /**
      * Send message to peers in peer-to-peer network
      *
-     * @param message - Message to send to peers in network
+     * @param msg - Message to send to peers in network
      * @returns true if message is successfully sent, false otherwise
      *
      * @throws {@link InvalidActionError}
      * Thrown if not connected to peer-to-peer network
      */
-    private sendMessageToPeers(message: any): void {
+    private sendMessageToPeers(msg: MessageInterface): void {
         if (!this.isConnectionLive()) {
             throw new InvalidActionError("Not connected to peer-to-peer network.");
         }
         this.peerConnections.forEach((connection: any, id: string): void => {
-            if (message.source !== id) {
-                connection.send(message);
+            if (msg.sourceID !== id) {
+                connection.send(msg);
             }
         });
     }
@@ -124,37 +129,36 @@ class Connection {
     /**
      * Process message received from peers
      *
-     * @param message - Message received from peers
+     * @param msg - Message received from peers
      */
-    private processMessage(message: any): void {
-        const payload = message.payload;
-        console.log(message);
+    private processMessage(msg: MessageInterface): void {
+        console.log(msg);
         // TODO: process messages
 
         /** Manual tests: replace with real message parsing */
-        if (payload.type === "cursor") {
+        if (msg.msgType === MessageType.Cursor) {
             const cursor = {
-                startRow: payload.startRow,
-                endRow: payload.endRow,
-                startColumn: payload.startColumn,
-                endColumn: payload.endColumn,
+                startRow: msg.startRow,
+                endRow: msg.endRow,
+                startColumn: msg.startColumn,
+                endColumn: msg.endColumn,
                 color: {
-                    r: payload.r,
-                    g: payload.g,
-                    b: payload.b
+                    r: msg.r,
+                    g: msg.g,
+                    b: msg.b
                 },
                 label: Math.random()
             };
             this.client.editor.setCursor(cursor, "");
-        } else if (payload.type === "text") {
-            if (payload.delta.action === "insert") {
-                this.client.editor.insert(payload.delta.lines[0], payload.delta.start.row, payload.delta.start.column);
-            } else if (payload.delta.action === "remove") {
+        } else if (msg.msgType === MessageType.TextDelta) {
+            if (msg.delta.action === "insert") {
+                this.client.editor.insert(msg.delta.lines[0], msg.delta.start.row, msg.delta.start.column);
+            } else if (msg.delta.action === "remove") {
                 this.client.editor.remove(
-                    payload.delta.start.row,
-                    payload.delta.end.row,
-                    payload.delta.start.column,
-                    payload.delta.end.column
+                    msg.delta.start.row,
+                    msg.delta.end.row,
+                    msg.delta.start.column,
+                    msg.delta.end.column
                 );
             }
         }
@@ -187,7 +191,7 @@ class Connection {
             // Disconnect from TURN server if an error was found
             this.turnServerConnection.on(
                 "error",
-                ((error: any): void => {
+                ((error: Error): void => {
                     this.turnServerConnection.disconnect();
                 }).bind(this)
             );
@@ -222,7 +226,7 @@ class Connection {
             // Disconnect from host if error was found
             hostConnection.on(
                 "error",
-                ((error: any): void => {
+                ((error: Error): void => {
                     hostConnection.close();
                 }).bind(this)
             );
@@ -284,14 +288,14 @@ class Connection {
 
         connection.on(
             "data",
-            ((message: any): void => {
-                this.processMessage(message);
-                this.sendMessageToPeers(message);
+            ((msg: MessageInterface): void => {
+                this.processMessage(msg);
+                this.sendMessageToPeers(msg);
             }).bind(this)
         );
         connection.on(
             "error",
-            ((error: any): void => {
+            ((error: Error): void => {
                 connection.close();
             }).bind(this)
         );
@@ -309,7 +313,8 @@ class Connection {
             ((): void => {
                 // TODO: send initial CRDT state
                 this.sendMessage({
-                    type: "initial"
+                    msgType: MessageType.Initial,
+                    sourceID: this.id
                 });
             }).bind(this)
         );

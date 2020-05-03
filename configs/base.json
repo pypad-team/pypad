@@ -1,8 +1,0 @@
-{
-    "compilerOptions": {
-        "target": "es6",
-        "strict": true,
-        "allowSyntheticDefaultImports": true,
-        "forceConsistentCasingInFileNames": true
-    }
-}
