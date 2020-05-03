@@ -7,6 +7,7 @@ interface Color {
 }
 
 interface Cursor {
+    type?: string;
     startRow: number;
     endRow: number;
     startColumn: number;
@@ -125,10 +126,20 @@ class Editor {
             if (remoteCursor.id !== undefined) {
                 this.editor.session.removeMarker(remoteCursor.id);
             }
-            const range = new ace.Range(cursor.startRow, cursor.startColumn, cursor.startRow, cursor.endColumn);
+            let range;
+            if (cursor.startRow === cursor.endRow && cursor.startColumn === cursor.endColumn) {
+                cursor.type = "single";
+                range = new ace.Range(cursor.startRow, cursor.startColumn - 1, cursor.startRow, cursor.endColumn);
+                console.log("single");
+            } else {
+                cursor.type = "selection";
+                range = new ace.Range(cursor.startRow, cursor.startColumn, cursor.startRow, cursor.endColumn);
+                console.log("selection");
+            }
+
             remoteCursor.id = this.editor.session.addMarker(
                 range,
-                `remoteCursor-${cursor.color.r}-${cursor.color.g}-${cursor.color.b}-${cursor.label}`,
+                `remoteCursor-${cursor.color.r}-${cursor.color.g}-${cursor.color.b}-${cursor.label}-${cursor.type}`,
                 "text",
                 true
             );
@@ -150,7 +161,9 @@ class Editor {
                     const rgb = `${tokens[1]}, ${tokens[2]}, ${tokens[3]}`;
                     (cursorElement as HTMLElement).style.position = "absolute";
                     (cursorElement as HTMLElement).style.borderRight = `2px solid rgba(${rgb}, 0.5)`;
-                    (cursorElement as HTMLElement).style.backgroundColor = `rgba(${rgb}, 0.2)`;
+                    if (tokens[5] === "selection") {
+                        (cursorElement as HTMLElement).style.backgroundColor = `rgba(${rgb}, 0.2)`;
+                    }
                 });
             }).bind(this),
             100
@@ -222,16 +235,16 @@ class Editor {
         this.editor.selection.on(
             "changeCursor",
             ((): void => {
-                const cursorPosition = this.editor.getCursorPosition();
+                const cursorRange = this.editor.selection.getRange();
                 // TODO: emit new cursor position to connection
 
                 /** Manual tests: replace with real cursor updates */
                 this.client.connection.sendMessage({
                     type: "cursor",
-                    startRow: cursorPosition.row,
-                    endRow: cursorPosition.row,
-                    startColumn: cursorPosition.column - 1,
-                    endColumn: cursorPosition.column,
+                    startRow: cursorRange.start.row,
+                    endRow: cursorRange.end.row,
+                    startColumn: cursorRange.start.column,
+                    endColumn: cursorRange.end.column,
                     r: 150,
                     g: 255,
                     b: 50

@@ -319,7 +319,7 @@ class Connection {
      * Continuously try to reconnect if not connected
      */
     private tryReconnect(): void {
-        const RETRY_INTERVAL = 1000;
+        const RETRY_INTERVAL = 3000;
         if (this.isConnectionLive()) {
             this.attemptingReconnect = false;
             return;
