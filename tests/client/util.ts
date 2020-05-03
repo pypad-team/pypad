@@ -1,10 +1,10 @@
 import { v4 as uuid } from "uuid";
 
-import { CRDT, Delta, Index } from "../../client/crdt";
-import { Message, MessageInterface } from "../../client/message";
-import { ConnectionInterface } from "../../client/connection";
-import { EditorInterface } from "../../client/editor";
-import { ClientInterface } from "../../client/client";
+import { CRDT, Delta, Index } from "../../client/ts/crdt";
+import { Message, MessageInterface } from "../../client/ts/message";
+import { ConnectionInterface } from "../../client/ts/connection";
+import { EditorInterface } from "../../client/ts/editor";
+import { ClientInterface } from "../../client/ts/client";
 
 const DEBUG = false;
 
@@ -135,7 +135,7 @@ export class TestNetwork {
 
     /* Send messages in `sourcePeer` queue to `destPeer` */
     private broadcast(sourcePeer: TestClient, destPeer: TestClient): void {
-        sourcePeer.connection.queue.forEach(msg => {
+        sourcePeer.connection.queue.forEach((msg: MessageInterface) => {
             switch (msg.msg) {
                 case Message.Insert:
                     destPeer.crdt.remoteInsert(msg.ch);

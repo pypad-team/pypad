@@ -1,7 +1,7 @@
 import "mocha";
 import { expect } from "chai";
 
-import { Char } from "../../client/char";
+import { Char } from "../../client/ts/char";
 import { TestClient } from "./util";
 
 function toText(document: Char[][]): string[] {

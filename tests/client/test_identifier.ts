@@ -1,7 +1,7 @@
 import "mocha";
 import { expect } from "chai";
 
-import { compareIdentifier, generateIdentifier } from "../../client/identifier";
+import { compareIdentifier, generateIdentifier } from "../../client/ts/identifier";
 
 describe("identifier", () => {
     describe("compareIdentifier", () => {

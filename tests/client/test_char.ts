@@ -1,7 +1,7 @@
 import "mocha";
 import { expect } from "chai";
 
-import { compareChar } from "../../client/char";
+import { compareChar } from "../../client/ts/char";
 
 describe("char", () => {
     describe("compareChar", () => {

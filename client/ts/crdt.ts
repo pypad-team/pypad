@@ -67,7 +67,7 @@ export class CRDT {
         const nextChar = this.findNextChar(delta.start);
 
         // array of inserted character objects
-        const inserted = [];
+        const inserted: Char[] = [];
 
         lines.forEach(line => {
             Array.from(line).forEach(ch => {
@@ -114,7 +114,7 @@ export class CRDT {
         let currentColumn = delta.end.column - 1;
 
         // array of deleted character objects
-        const deleted = [];
+        const deleted: Char[] = [];
 
         // NOTE: deleting multiple lines can be optimized
         lines.reverse().forEach(line => {
@@ -289,7 +289,7 @@ export class CRDT {
             return this.document[index.row][index.column - 1];
         } else {
             if (index.row == 0) {
-                return { id: [], counter: null, data: null };
+                return { id: [], counter: 0, data: "" };
             } else {
                 return this.document[index.row - 1][this.document[index.row - 1].length - 1];
             }
@@ -300,7 +300,7 @@ export class CRDT {
     private findNextChar(index: Index): Char {
         const lineLength = this.document[index.row].length;
         if (index.column === lineLength) {
-            return { id: [], counter: null, data: null };
+            return { id: [], counter: 0, data: "" };
         } else {
             return this.document[index.row][index.column];
         }
