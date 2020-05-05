@@ -1,11 +1,14 @@
-/* TODO document */
-export enum Message {
+/** Messages supported by `connection` */
+export enum MessageType {
     Insert,
-    Delete
+    Delete,
+    Sync,
+    Cursor
 }
 
-/* TODO document */
+/** Generic message interface */
 export interface MessageInterface {
-    msg: Message;
-    [prop: string]: any; // avoid explicit any (?)
+    id: string;
+    messageType: MessageType;
+    [prop: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }

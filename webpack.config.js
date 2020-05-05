@@ -4,6 +4,7 @@ const webpack = require('webpack');
 const config = function(env) {
     return {
         mode: env.production? 'production' : 'development',
+        devtool: "inline-source-map",
         entry: './client/ts/index.ts',
         output: {
             path: path.resolve(__dirname, 'build/client/js/'),

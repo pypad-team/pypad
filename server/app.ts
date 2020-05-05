@@ -1,7 +1,5 @@
-import * as express from "express";
 import * as bodyParser from "body-parser";
-import { Request } from "express"; // eslint-disable-line no-unused-vars
-import { Response } from "express"; // eslint-disable-line no-unused-vars
+import * as express from "express";
 import * as path from "path";
 
 /**
@@ -34,7 +32,7 @@ class App {
     private routes(): void {
         const router = express.Router();
 
-        router.get("/", (req: Request, res: Response) => {
+        router.get("/", (req: express.Request, res: express.Response) => {
             res.sendFile("index.html", { root: path.join(__dirname, "../client") });
         });
 

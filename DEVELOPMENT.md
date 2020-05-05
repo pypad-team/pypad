@@ -11,7 +11,7 @@ This will discuss the workflow of developing collabd.
 ## Running a Server
 The server is usually run by compiling the `.ts` files to `.js` and creating a `build` directory for the server to run on. This can be done by running `npm run build && npm start`.
 
-The server can also be run on dev mode to find live updates in the `.ts` files. This will run a server directly from the `client` and `server` directories. This can be done by running `npm run dev`.
+The server can also be run on dev mode to find live updates in the `.ts` files. This will run a server directly from the `client` and `server` directories. This can be done by running `npm run dev` and `npm start` separately.
 
 ## Formatting
 collabd uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) to format the code. Linting the `client`, `server`, and `tests` directory files can be done by running `npm run lint`. This is automatically run every time the files are built and the server is run.

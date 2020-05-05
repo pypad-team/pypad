@@ -19,6 +19,10 @@
     "build:client": "webpack --env.production && cp ./client/index.html ./build/client/ && cp -r ./client/css/ ./build/client/",
     "build:server": "tsc --build",
     "build:docs": "typedoc --out ./docs/ ./client/ts/ ./server/",
+    "predev": "rm -rf ./build && mkdir ./build && mkdir ./build/client",
+    "dev": "npm run dev:client & npm run dev:server",
+    "dev:client": "ln ./client/index.html ./build/client && cp -r ./client/css/ ./build/client && webpack --env.development --watch",
+    "dev:server": "tsc --build --watch",
     "lint": "eslint --fix --ext .ts ./server/ ./client/ ./tests/",
     "start": "node ./build/server/index.js",
     "test": "npm run test:client; npm run test:server",
@@ -30,6 +34,8 @@
     "@types/chai": "^4.2.11",
     "@types/express": "^4.17.3",
     "@types/mocha": "^7.0.2",
+    "@types/node": "13.1",
+    "@types/peerjs": "^1.1.0",
     "@types/sinon": "^7.5.2",
     "@types/uuid": "^7.0.3",
     "@typescript-eslint/eslint-plugin": "^2.24.0",
@@ -44,6 +50,7 @@
     "eslint-plugin-tsdoc": "^0.2.3",
     "express": "^4.17.1",
     "mocha": "^7.1.0",
+    "peerjs": "^1.2.0",
     "prettier": "^1.19.1",
     "sinon": "^9.0.1",
     "ts-loader": "^7.0.2",
@@ -54,7 +61,6 @@
     "webpack-cli": "^3.3.11"
   },
   "devDependencies": {
-    "ts-node-dev": "^1.0.0-pre.44",
     "typedoc": "^0.17.3"
   }
 }

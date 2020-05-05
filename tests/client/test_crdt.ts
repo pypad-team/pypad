@@ -174,6 +174,40 @@ describe("crdt", () => {
             const document = toText(client.crdt.document);
             expect(document).to.deep.equal(["ab"]);
         });
+        it("supports multiple inserts and deletes with newline", () => {
+            const client = new TestClient();
+            const deltaInsert1 = {
+                action: "insert",
+                start: { row: 0, column: 0 },
+                end: { row: 1, column: 0 },
+                lines: ["", ""]
+            };
+            const deltaInsert2 = {
+                action: "insert",
+                start: { row: 1, column: 0 },
+                end: { row: 2, column: 0 },
+                lines: ["", ""]
+            };
+            const deltaDelete1 = {
+                action: "remove",
+                start: { row: 1, column: 0 },
+                end: { row: 2, column: 0 },
+                lines: ["", ""]
+            };
+            const deltaDelete2 = {
+                action: "remove",
+                start: { row: 0, column: 0 },
+                end: { row: 1, column: 0 },
+                lines: ["", ""]
+            };
+
+            client.crdt.localInsert(deltaInsert1);
+            client.crdt.localInsert(deltaInsert2);
+            client.crdt.localDelete(deltaDelete1);
+            client.crdt.localDelete(deltaDelete2);
+            const document = toText(client.crdt.document);
+            expect(document).to.deep.equal([""]);
+        });
     });
     describe("remoteInsert", () => {
         it("inserts character into start of document", () => {
@@ -276,6 +310,24 @@ describe("crdt", () => {
             client.crdt.remoteInsert(ch);
             const document = toText(client.crdt.document);
             expect(document).to.deep.equal(["aa\n", "aa\n", "aaaa"]);
+        });
+        it("inserts multiple newline characters", () => {
+            const client = new TestClient();
+            client.crdt.document = [
+                [
+                    { id: [{ digit: 10, peer: "1" }], counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: "1" }], counter: 0, data: "a" },
+                    { id: [{ digit: 30, peer: "1" }], counter: 0, data: "a" },
+                    { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" }
+                ]
+            ];
+            const ch1 = { id: [{ digit: 50, peer: "1" }], counter: 0, data: "\n" };
+            const ch2 = { id: [{ digit: 60, peer: "1" }], counter: 0, data: "\n" };
+
+            client.crdt.remoteInsert(ch1);
+            client.crdt.remoteInsert(ch2);
+            const document = toText(client.crdt.document);
+            expect(document).to.deep.equal(["aaaa\n", "\n", ""]);
         });
         it("inserts newline character into end of line", () => {
             const client = new TestClient();

@@ -1,10 +1,10 @@
 import { v4 as uuid } from "uuid";
 
-import { CRDT, Delta, Index } from "../../client/ts/crdt";
-import { Message, MessageInterface } from "../../client/ts/message";
-import { ConnectionInterface } from "../../client/ts/connection";
-import { EditorInterface } from "../../client/ts/editor";
 import { ClientInterface } from "../../client/ts/client";
+import { ConnectionInterface } from "../../client/ts/connection";
+import { CRDT, Delta, Index } from "../../client/ts/crdt";
+import { EditorInterface } from "../../client/ts/editor";
+import { MessageInterface, MessageType } from "../../client/ts/message";
 
 const DEBUG = false;
 
@@ -21,7 +21,7 @@ export class TestConnection implements ConnectionInterface {
         this.queue = [];
     }
 
-    public isConnected(): boolean {
+    public isConnectionLive(): boolean {
         return true;
     }
 
@@ -43,9 +43,9 @@ export class TestEditor implements EditorInterface {
         }
     }
 
-    public editorDelete(index: Index): void {
+    public editorDelete(startIndex: Index, endIndex: Index): void {
         if (DEBUG) {
-            console.log("index: ", index);
+            console.log("start index: ", startIndex, " end index: ", endIndex);
         }
     }
 }
@@ -136,11 +136,11 @@ export class TestNetwork {
     /* Send messages in `sourcePeer` queue to `destPeer` */
     private broadcast(sourcePeer: TestClient, destPeer: TestClient): void {
         sourcePeer.connection.queue.forEach((msg: MessageInterface) => {
-            switch (msg.msg) {
-                case Message.Insert:
+            switch (msg.messageType) {
+                case MessageType.Insert:
                     destPeer.crdt.remoteInsert(msg.ch);
                     break;
-                case Message.Delete:
+                case MessageType.Delete:
                     destPeer.crdt.remoteDelete(msg.ch);
                     break;
             }
