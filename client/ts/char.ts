@@ -1,4 +1,4 @@
-import { Identifier, compareIdentifier } from "./identifier";
+import { compareIdentifier, Identifier } from "./identifier";
 
 /** Character object */
 export interface Char {
@@ -12,7 +12,7 @@ export interface Char {
  *
  * @param ch1 - First character
  * @param ch2 - Second character
- * @returns - Value in (1, 0, -1) representing the comparison result
+ * @returns value in (1, 0, -1) representing the comparison result
  */
 export function compareChar(ch1: Char, ch2: Char): number {
     return compareIdentifier(ch1.id, ch2.id);

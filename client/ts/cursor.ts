@@ -1,23 +1,23 @@
-/** TODO document */
-export interface Color {
+import { Index } from "./crdt";
+
+/* Color RGB representation */
+interface Color {
     r: number;
     g: number;
     b: number;
 }
 
-/** TODO document */
+/** Cursor representation */
 export interface Cursor {
     type?: string;
-    startRow: number;
-    endRow: number;
-    startColumn: number;
-    endColumn: number;
-    color: Color;
     label: string;
+    start: Index;
+    end: Index;
+    color: Color;
 }
 
-/** TODO document */
+/** Remote cursor representation */
 export interface RemoteCursor {
-    cursor: Cursor;
     id?: number;
+    cursor: Cursor;
 }

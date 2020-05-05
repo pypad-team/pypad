@@ -1,20 +1,24 @@
-import * as ace from "ace-builds/src-noconflict/ace";
-import "ace-builds/src-noconflict/mode-python";
-import "ace-builds/src-noconflict/theme-nord_dark";
-
 import { ClientInterface } from "./client";
-import { Index } from "./crdt";
+import { Delta, Index } from "./crdt";
 import { Cursor, RemoteCursor } from "./cursor";
 import { MessageType } from "./message";
 
-/* TODO document */
+/** Editor class; source loaded using CDN */
+declare const ace: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+/** Generic editor interface */
 export interface EditorInterface {
     editorInsert(index: Index, ch: string): void;
     editorDelete(startIndex: Index, endIndex: Index): void;
-    [prop: string]: any; // avoid explicit any (?)
+    [prop: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
-/* TODO document */
+/**
+ * Internal editor representation.
+ *
+ * Manages local and remote changes made to the document. Updates the location
+ * of cursors based on local and remote cursor movement.
+ */
 export class Editor implements EditorInterface {
     private client: ClientInterface;
     private editor: any;
@@ -35,30 +39,30 @@ export class Editor implements EditorInterface {
     }
 
     /**
-     * Insert text into the editor at given row and column of the editor
+     * Insert text into the editor.
      *
-     * @param index - TODO
-     * @param ch - TODO
+     * @param index - index to insert character
+     * @param ch - character to be inserted
      */
     public editorInsert(index: Index, ch: string): void {
         this.editor.session.insert(index, ch);
     }
 
     /**
-     * Remove text from editor within a given range
+     * Remove text from the editor.
      *
-     * @param startIndex - TODO
-     * @param endIndex - TODO
+     * @param startIndex - starting index to remove text
+     * @param endIndex - ending index to remove text
      */
     public editorDelete(startIndex: Index, endIndex: Index): void {
-        const deleteRange = new ace.Range(startIndex.row, startIndex.column, endIndex.row, endIndex.column);
-        this.editor.session.replace(deleteRange, "");
+        const range = new ace.Range(startIndex.row, startIndex.column, endIndex.row, endIndex.column);
+        this.editor.session.replace(range, "");
     }
 
     /**
-     * Set a cursor to be displayed in the editor
+     * Set a cursor to be displayed in the editor.
      *
-     * @param cursor - Cursor from other peer to display in editor
+     * @param cursor - remote cursor to insert
      * @param id - ID of client represented by the cursor
      */
     public setCursor(cursor: Cursor, id: string): void {
@@ -70,12 +74,11 @@ export class Editor implements EditorInterface {
                 cursor: cursor
             });
         }
-
         this.updateRemoteCursors();
     }
 
     /**
-     * Remove a cursor from the editor
+     * Remove a cursor from the editor.
      *
      * @param id - ID of client represented by the cursor
      */
@@ -90,32 +93,28 @@ export class Editor implements EditorInterface {
         }
     }
 
-    /**
-     * Update the display for remote cursors in the editor
-     */
+    /** Update remote cursors in the editor */
     private updateRemoteCursors(): void {
-        // Get all the HTML elements for remote cursors and remove them
+        // remove HTML elements for remote cursors
         const remoteCursorElements = document.querySelectorAll('[class^="remoteCursor"],[class*=" remoteCursor"]');
         remoteCursorElements.forEach((cursorElement: Element): void => {
             cursorElement.remove();
         });
 
-        // Add HTML elements for all remote cursors
-        this.remoteCursors.forEach((remoteCursor: RemoteCursor, id: string): void => {
+        // insert HTML elements for remote cursors
+        this.remoteCursors.forEach((remoteCursor: RemoteCursor): void => {
             const cursor = remoteCursor.cursor;
-            // Remove any existing markers for the cursor
+            // remove existing cursor markers
             if (remoteCursor.id !== undefined) {
                 this.editor.session.removeMarker(remoteCursor.id);
             }
             let range;
-            if (cursor.startRow === cursor.endRow && cursor.startColumn === cursor.endColumn) {
+            if (cursor.start.row === cursor.end.row && cursor.start.column === cursor.end.column) {
                 cursor.type = "single";
-                range = new ace.Range(cursor.startRow, cursor.startColumn - 1, cursor.startRow, cursor.endColumn);
-                console.log("single");
+                range = new ace.Range(cursor.start.row, cursor.start.column - 1, cursor.start.row, cursor.end.column);
             } else {
                 cursor.type = "selection";
-                range = new ace.Range(cursor.startRow, cursor.startColumn, cursor.startRow, cursor.endColumn);
-                console.log("selection");
+                range = new ace.Range(cursor.start.row, cursor.start.column, cursor.start.row, cursor.end.column);
             }
 
             remoteCursor.id = this.editor.session.addMarker(
@@ -126,7 +125,7 @@ export class Editor implements EditorInterface {
             );
         });
 
-        // Wait for all markers to be added to the editor
+        // timeout until markers are inserted into the editor
         setTimeout(
             ((): void => {
                 const remoteCursorElements = document.querySelectorAll(
@@ -138,7 +137,7 @@ export class Editor implements EditorInterface {
                         return name.includes("remoteCursor");
                     })[0];
                     const tokens = className.split("-");
-                    // Parse the class name to style the cursor
+                    // parse the class name to style the cursor
                     const rgb = `${tokens[1]}, ${tokens[2]}, ${tokens[3]}`;
                     (cursorElement as HTMLElement).style.position = "absolute";
                     (cursorElement as HTMLElement).style.borderRight = `2px solid rgba(${rgb}, 0.5)`;
@@ -151,68 +150,56 @@ export class Editor implements EditorInterface {
         );
     }
 
-    /**
-     * Enable the editor to allow writing
-     */
+    /** Enable the editor */
     public enable(): void {
         this.editor.setReadOnly(false);
         this.enabled = true;
     }
 
-    /**
-     * Disable the editor to disallow writing
-     */
+    /** Disable the editor  */
     public disable(): void {
         this.editor.setReadOnly(true);
         this.enabled = false;
     }
 
-    /**
-     * Listen for local changes in editor to update CRDT
-     */
+    /* Listen for local changes in editor to update CRDT */
     private listenLocalChanges(): void {
         this.editor.on(
             "change",
-            ((delta: any): void => {
-                // Filter out changes from insert method
+            ((delta: Delta): void => {
+                // ignore non-user changes
                 if (this.editor.curOp && this.editor.curOp.command.name) {
-                    // TODO: update CRDT and send messages
-
-                    /** Manual tests: replace with real change message */
-                    this.client.connection.sendMessage({
-                        sourceID: this.client.connection.id,
-                        msgType: MessageType.TextDelta,
-                        delta: delta
-                    });
-                    /** end */
+                    switch (delta.action) {
+                        case "insert":
+                            this.client.crdt.localInsert(delta);
+                            break;
+                        case "remove":
+                            this.client.crdt.localDelete(delta);
+                            break;
+                    }
                 }
             }).bind(this)
         );
     }
 
-    /**
-     * Listen for cursor changes to emit to peers
-     */
+    /* Listen for cursor changes to emit to peers */
     private listenCursorChanges(): void {
         this.editor.selection.on(
             "changeCursor",
             ((): void => {
-                const cursorRange = this.editor.selection.getRange();
-                // TODO: emit new cursor position to connection
-
-                /** Manual tests: replace with real cursor updates */
+                const range = this.editor.selection.getRange();
+                // TODO generalize
                 this.client.connection.sendMessage({
-                    sourceID: this.client.connection.id,
-                    msgType: MessageType.Cursor,
-                    startRow: cursorRange.start.row,
-                    endRow: cursorRange.end.row,
-                    startColumn: cursorRange.start.column,
-                    endColumn: cursorRange.end.column,
-                    r: 150,
-                    g: 255,
-                    b: 50
+                    id: this.client.connection.id,
+                    messageType: MessageType.Cursor,
+                    start: range.start,
+                    end: range.end,
+                    color: {
+                        r: 0,
+                        g: 255,
+                        b: 0
+                    }
                 });
-                /** end */
             }).bind(this)
         );
     }

@@ -1,13 +1,19 @@
-import { MessageType } from "./message";
-import { ClientInterface } from "./client";
 import { Char, compareChar } from "./char";
+import { ClientInterface } from "./client";
+import { TextError } from "./error";
 import { generateIdentifier } from "./identifier";
+import { MessageType } from "./message";
 
 enum Operation {
     Insert,
     Delete
 }
 
+/**
+ * Index object
+ *
+ * **Note:** corresponds to (row, column) position in editor.
+ */
 export interface Index {
     row: number;
     column: number;
@@ -30,13 +36,12 @@ export interface Delta {
  *
  * Example usage:
  * ```ts
- * const peer = 0;
- * const crdt = new CRDT(peer);
- * crdt.localInsert(...); // delta object
- * crdt.localDelete(...); // delta object
- * crdt.remoteInsert(...); // character object
- * crdt.remoteDelete(...); // character object
- * console.log(crdt.document); // internal crdt state
+ * const client = new Client();
+ * client.crdt.localInsert(...); // delta object
+ * client.crdt.localDelete(...); // delta object
+ * client.crdt.remoteInsert(...); // character object
+ * client.crdt.remoteDelete(...); // character object
+ * console.log(crdt.document); // output internal document
  * ```
  */
 export class CRDT {
@@ -55,7 +60,7 @@ export class CRDT {
      */
     public localInsert(delta: Delta): void {
         if (delta.action !== "insert") {
-            throw new Error("input delta not an insert operation");
+            throw new TextError("input delta not an insert operation");
         }
         this.counter++;
         const lines = this.parseLines(delta.lines);
@@ -88,11 +93,15 @@ export class CRDT {
             });
         });
         if (currentColumn !== delta.end.column) {
-            throw new Error("incorrect indices");
+            throw new TextError("incorrect indices");
         }
         // broadcast inserted character objects
         inserted.forEach(ch => {
-            const msg = { msgType: MessageType.Insert, sourceID: this.client.connection.id, ch: ch };
+            const msg = {
+                id: this.client.connection.id,
+                messageType: MessageType.Insert,
+                ch: ch
+            };
             this.client.connection.sendMessage(msg);
         });
     }
@@ -104,7 +113,7 @@ export class CRDT {
      */
     public localDelete(delta: Delta): void {
         if (delta.action !== "remove") {
-            throw new Error("input delta not a delete operation");
+            throw new TextError("input delta not a delete operation");
         }
         this.counter++;
         const lines = this.parseLines(delta.lines);
@@ -139,11 +148,15 @@ export class CRDT {
         this.removeLines();
 
         if (currentColumn !== delta.start.column - 1) {
-            throw new Error("incorrect indices");
+            throw new TextError("incorrect indices");
         }
         // broadcast deleted character objects
         deleted.forEach(ch => {
-            const msg = { msgType: MessageType.Delete, sourceID: this.client.connection.id, ch: ch };
+            const msg = {
+                id: this.client.connection.id,
+                messageType: MessageType.Delete,
+                ch: ch
+            };
             this.client.connection.sendMessage(msg);
         });
     }
@@ -180,8 +193,19 @@ export class CRDT {
         }
         this.removeLines();
         // update local editor
-        // TODO: add startRange and endRange
-        this.client.editor.editorDelete(index, index);
+        let indexNext: Index;
+        if (ch.data === "\n") {
+            indexNext = {
+                row: index.row + 1,
+                column: 0
+            };
+        } else {
+            indexNext = {
+                row: index.row,
+                column: index.column + 1
+            };
+        }
+        this.client.editor.editorDelete(index, indexNext);
     }
 
     /* Insert trailing newline characters */
@@ -213,13 +237,13 @@ export class CRDT {
             if (op == Operation.Insert) {
                 return { row: 0, column: 0 };
             }
-            throw new Error("character not in document");
+            throw new TextError("character not in document");
         }
         if (compareChar(ch, this.document[max][this.document[max].length - 1]) === 1) {
             if (op === Operation.Insert) {
                 return { row: max, column: this.document[max].length };
             }
-            throw new Error("character not in document");
+            throw new TextError("character not in document");
         }
 
         // binary search
@@ -241,7 +265,7 @@ export class CRDT {
         if (op == Operation.Insert) {
             return { row: min, column: 0 };
         }
-        throw new Error("character not in document");
+        throw new TextError("character not in document");
     }
 
     /* Find insert index in a document line */
@@ -258,7 +282,7 @@ export class CRDT {
             } else if (compareChar(ch, this.document[row][mid]) === 1) {
                 min = mid + 1;
             } else {
-                throw new Error("character in document");
+                throw new TextError("character in document");
             }
         }
         return { row: row, column: min };
@@ -281,7 +305,7 @@ export class CRDT {
                 return { row: row, column: mid };
             }
         }
-        throw new Error("character not in document");
+        throw new TextError("character not in document");
     }
 
     /* Return character preceding `index` */

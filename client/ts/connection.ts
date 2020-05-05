@@ -1,21 +1,28 @@
-// import * as peer from "peerjs";
-declare const Peer: any;
-
-import { InvalidActionError } from "./errors";
+import { ClientInterface } from "./client";
+import { ConnectionError } from "./error";
 import { MessageInterface, MessageType } from "./message";
 
-/* TODO document */
+/** PeerJS peer class; source loaded using CDN */
+declare const Peer: any;
+
+/** Generic connection interface */
 export interface ConnectionInterface {
     isConnectionLive(): boolean;
     sendMessage(msg: MessageInterface): void;
-    [prop: string]: any; // avoid explicit any (?)
+    [prop: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
-/* TODO document */
+/**
+ * Internal connection representation.
+ *
+ * Handles communication between clients in the editing session. Peers
+ * connect to a central host; sent messages are routed to peers through
+ * the host.
+ */
 export class Connection implements ConnectionInterface {
     private hostID: string;
     private id: string;
-    private client: any;
+    private client: ClientInterface;
 
     private isHost: boolean;
     private connectedToServer: boolean;
@@ -25,7 +32,7 @@ export class Connection implements ConnectionInterface {
     private turnServerConnection?: any;
     private peerConnections: Map<string, any>;
 
-    constructor(hostID: string, client: any) {
+    constructor(hostID: string, client: ClientInterface) {
         this.hostID = hostID;
         this.id = "";
         this.client = client;
@@ -40,20 +47,20 @@ export class Connection implements ConnectionInterface {
     }
 
     /**
-     * Returns the connection status in peer-to-peer network
+     * Returns the connection status.
      *
-     * @returns true if connection is host or if connection is connected to host and
-     *  connection has been assigned an ID by TURN server
+     * @returns `true` if client is host or if client is connected to host and
+     * connection has been assigned an ID
      */
     public isConnectionLive(): boolean {
         return this.connectedToServer && this.connectedToHost;
     }
 
     /**
-     * Send message to peers in peer-to-peer network
+     * Send message to remote peers.
      *
-     * @param msg - Message to send to peers in network
-     * @returns true if message is successfully sent, false otherwise
+     * @param msg - message to be sent
+     * @returns `true` if message is sent successfully; `false` otherwise
      */
     public sendMessage(msg: MessageInterface): boolean {
         try {
@@ -69,17 +76,17 @@ export class Connection implements ConnectionInterface {
     }
 
     /**
-     * Returns the ID of the host in the peer-to-peer network
+     * Returns the ID of the central host.
      *
-     * @returns ID of the host in the peer-to-peer network
+     * @returns central host ID
      *
-     * @throws {@link InvalidActionError}
-     * Thrown if host not yet assigned an ID
+     * @throws {@link ConnectionError}
+     * Thrown if host has not been assigned an ID
      */
     public getHostID(): string {
         if (this.isHost) {
             if (this.id === "") {
-                throw new InvalidActionError("Host has not yet been assigned an ID.");
+                throw new ConnectionError("host not assigned an ID");
             }
             return this.id;
         }
@@ -87,95 +94,87 @@ export class Connection implements ConnectionInterface {
     }
 
     /**
-     * Send message to host in peer-to-peer network if and only if connected
+     * Send message from peer to host.
      *
-     * @param msg - Message to send to peers in network
-     * @returns true if message is successfully sent, false otherwise
+     * @param msg - message to be sent
+     * @returns `true` if message is sent successfully; `false` otherwise
      *
-     * @throws {@link InvalidActionError}
-     * Thrown if not connected to peer-to-peer network
+     * @throws {@link ConnectionError}
+     * Thrown if not connected to network
      */
     private sendMessageToHost(msg: MessageInterface): void {
         if (!this.isConnectionLive()) {
-            throw new InvalidActionError("Not connected to peer-to-peer network.");
+            throw new ConnectionError("not connected to network");
         }
         const connection = this.peerConnections.get(this.hostID);
         if (connection === undefined) {
-            throw new InvalidActionError("Not connected to peer-to-peer network.");
+            throw new ConnectionError("not connected to network");
         }
         connection.send(msg);
     }
 
     /**
-     * Send message to peers in peer-to-peer network
+     * Send message from host to peers.
      *
-     * @param msg - Message to send to peers in network
-     * @returns true if message is successfully sent, false otherwise
+     * @param msg - message to be sent
+     * @returns `true` if message is sent successfully; `false` otherwise
      *
-     * @throws {@link InvalidActionError}
-     * Thrown if not connected to peer-to-peer network
+     * @throws {@link ConnectionError}
+     * Thrown if not connected to network
      */
     private sendMessageToPeers(msg: MessageInterface): void {
         if (!this.isConnectionLive()) {
-            throw new InvalidActionError("Not connected to peer-to-peer network.");
+            throw new ConnectionError("not connected to network");
         }
         this.peerConnections.forEach((connection: any, id: string): void => {
-            if (msg.sourceID !== id) {
+            if (msg.id !== id) {
                 connection.send(msg);
             }
         });
     }
 
     /**
-     * Process message received from peers
+     * Handle message received from peers.
      *
-     * @param msg - Message received from peers
+     * @param msg - received message
      */
     private processMessage(msg: MessageInterface): void {
         console.log(msg);
-        // TODO: process messages
-
-        /** Manual tests: replace with real message parsing */
-        if (msg.msgType === MessageType.Cursor) {
-            const cursor = {
-                startRow: msg.startRow,
-                endRow: msg.endRow,
-                startColumn: msg.startColumn,
-                endColumn: msg.endColumn,
-                color: {
-                    r: msg.r,
-                    g: msg.g,
-                    b: msg.b
-                },
-                label: Math.random()
-            };
-            this.client.editor.setCursor(cursor, "");
-        } else if (msg.msgType === MessageType.TextDelta) {
-            if (msg.delta.action === "insert") {
-                this.client.editor.insert(msg.delta.lines[0], msg.delta.start.row, msg.delta.start.column);
-            } else if (msg.delta.action === "remove") {
-                this.client.editor.remove(
-                    msg.delta.start.row,
-                    msg.delta.end.row,
-                    msg.delta.start.column,
-                    msg.delta.end.column
+        switch (msg.messageType) {
+            case MessageType.Insert:
+                this.client.crdt.remoteInsert(msg.ch);
+                break;
+            case MessageType.Delete:
+                this.client.crdt.remoteDelete(msg.ch);
+                break;
+            case MessageType.Sync:
+                // TODO implement sync
+                break;
+            case MessageType.Cursor:
+                this.client.editor.setCursor(
+                    {
+                        start: msg.start,
+                        end: msg.end,
+                        color: msg.color,
+                        label: Math.random()
+                    },
+                    ""
                 );
-            }
+                break;
         }
-        /** end */
     }
 
     /**
-     * Connect to peer-to-peer network if not connected
+     * Reconnect to network if not connected.
      *
-     * @throws {@link InvalidActionError}
-     * Thrown if already connected to peer-to-peer network
+     * @throws {@link ConnectionError}
+     * Thrown if connected to  network
      */
     private connectToNetwork(): void {
         if (this.isConnectionLive()) {
-            throw new InvalidActionError("Already connected to peer-to-peer network.");
+            throw new ConnectionError("connected to network");
         }
-        // Create new connection to TURN server if no live connection exists
+        // create new connection to TURN server if no live connection exists
         if (this.turnServerConnection === undefined || this.turnServerConnection.destroyed) {
             this.turnServerConnection = Peer();
             this.turnServerConnection.on(
@@ -188,14 +187,15 @@ export class Connection implements ConnectionInterface {
                     this.id = id;
                 }).bind(this)
             );
-            // Disconnect from TURN server if an error was found
+            // disconnect from TURN server upon error
             this.turnServerConnection.on(
                 "error",
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 ((error: Error): void => {
                     this.turnServerConnection.disconnect();
                 }).bind(this)
             );
-            // Reset the ID and disconnect if connection was destroyed
+            // reset the ID and disconnect upon connection close
             this.turnServerConnection.on(
                 "close",
                 ((): void => {
@@ -217,15 +217,16 @@ export class Connection implements ConnectionInterface {
         }
 
         if (!this.isHost) {
-            // Create reliable connection channel to host if connection is not host
+            // create reliable connection channel to host if connection is not host
             const hostConnection = this.turnServerConnection.connect(this.hostID, {
                 reliable: true
             });
             this.peerConnections.set(this.hostID, hostConnection);
             hostConnection.on("data", this.processMessage.bind(this));
-            // Disconnect from host if error was found
+            // disconnect from host upon error
             hostConnection.on(
                 "error",
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 ((error: Error): void => {
                     hostConnection.close();
                 }).bind(this)
@@ -252,14 +253,14 @@ export class Connection implements ConnectionInterface {
     }
 
     /**
-     * Handle disconnect from peer-to-peer network, resetting all proper variables
+     * Handle disconnect from network, resetting appropriate variables.
      *
-     * @throws {@link InvalidActionError}
-     * Thrown if still connected to peer-to-peer network
+     * @throws {@link ConnectionError}
+     * Thrown if connected to network
      */
     private handleDisconnect(): void {
         if (this.isConnectionLive()) {
-            throw new InvalidActionError("Still connected to peer-to-peer network.");
+            throw new ConnectionError("connected to network");
         }
         this.client.editor.disable();
         this.peerConnections.forEach((connection: any, id: string): void => {
@@ -268,21 +269,21 @@ export class Connection implements ConnectionInterface {
         });
         if (!this.attemptingReconnect) {
             this.attemptingReconnect = true;
-            this.tryReconnect();
+            this.reconnect();
         }
     }
 
     /**
-     * Accept connections from new peers to join peer-to-peer network
+     * Accept connections from new peers joining the network.
      *
-     * @param connection - Connection to peer joining the network
-     * @throws {@link InvalidActionError}
-     * Thrown if not host in peer-to-peer network
+     * @param connection - connection to peer joining the network
+     * @throws {@link ConnectionError}
+     * Thrown if not host in network
      */
     private acceptConnections(connection: any): void {
         if (!this.isHost) {
             connection.close();
-            throw new InvalidActionError("Not the host in peer-to-peer network");
+            throw new ConnectionError("not the host");
         }
         this.peerConnections.set(connection.peer, connection);
 
@@ -295,6 +296,7 @@ export class Connection implements ConnectionInterface {
         );
         connection.on(
             "error",
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             ((error: Error): void => {
                 connection.close();
             }).bind(this)
@@ -307,30 +309,25 @@ export class Connection implements ConnectionInterface {
                 }
             }).bind(this)
         );
-
         connection.on(
             "open",
             ((): void => {
-                // TODO: send initial CRDT state
                 this.sendMessage({
-                    msgType: MessageType.Initial,
-                    sourceID: this.id
+                    id: this.id,
+                    messageType: MessageType.Sync
                 });
             }).bind(this)
         );
     }
 
-    /**
-     * Continuously try to reconnect if not connected
-     */
-    private tryReconnect(): void {
+    /** Reattempt to reconnect if disconnected */
+    private reconnect(): void {
         const RETRY_INTERVAL = 3000;
         if (this.isConnectionLive()) {
             this.attemptingReconnect = false;
             return;
         }
-
         this.connectToNetwork();
-        setTimeout(this.tryReconnect.bind(this), RETRY_INTERVAL);
+        setTimeout(this.reconnect.bind(this), RETRY_INTERVAL);
     }
 }

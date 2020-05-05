@@ -1,15 +1,14 @@
-/* TODO document */
+/** Messages supported by `connection` */
 export enum MessageType {
     Insert,
     Delete,
-    TextDelta,
-    Cursor,
-    Initial
+    Sync,
+    Cursor
 }
 
-/* TODO document */
+/** Generic message interface */
 export interface MessageInterface {
-    sourceID: string;
-    msgType: MessageType;
-    [prop: string]: any; // avoid explicit any (?)
+    id: string;
+    messageType: MessageType;
+    [prop: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }

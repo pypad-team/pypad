@@ -1,4 +1,6 @@
-const BASE = 256;
+import { TextError } from "./error";
+
+const BASE = 8192;
 const BOUNDARY = 0.25 * BASE;
 
 /** Position identifier */
@@ -15,7 +17,7 @@ export type Identifier = Position[];
  *
  * @param pos1 - First position identifier
  * @param pos2 - Second position identifier
- * @returns - Value in (1, 0, -1) representing the comparison result
+ * @returns value in (1, 0, -1) representing the comparison result
  */
 function comparePosition(pos1: Position, pos2: Position): number {
     if (pos1.digit == pos2.digit) {
@@ -46,7 +48,7 @@ function comparePosition(pos1: Position, pos2: Position): number {
  *
  * @param id1 - First position identifier list
  * @param id2 - Second position identifier list
- * @returns - Value in (1, 0, -1) representing the comparison result
+ * @returns value in (1, 0, -1) representing the comparison result
  */
 export function compareIdentifier(id1: Identifier, id2: Identifier): number {
     for (let i = 0; i < Math.min(id1.length, id2.length); i++) {
@@ -70,11 +72,11 @@ export function compareIdentifier(id1: Identifier, id2: Identifier): number {
  * @param prevPos - Smaller position identifier
  * @param nextPos - Larger position identifier
  * @param peer - Peer identifer of the function caller
- * @returns - Generated position identifier
+ * @returns generated position identifier
  */
 function generatePosition(prevPos: Position, nextPos: Position, peer: string): Position {
     if (nextPos.digit - prevPos.digit <= 1) {
-        throw new Error("position ordering");
+        throw new TextError("position ordering");
     }
     const min = prevPos.digit + 1;
     const max = Math.min(nextPos.digit, prevPos.digit + BOUNDARY);
@@ -90,7 +92,7 @@ function generatePosition(prevPos: Position, nextPos: Position, peer: string): P
  * @param nextId - Larger position identifier list
  * @param currentId - Current position identifier list, must be initialized to `[]`
  * @param peer - Peer identifier of the function caller
- * @returns - Generated position identifier list
+ * @returns generated position identifier list
  */
 export function generateIdentifier(
     prevId: Identifier,
@@ -117,9 +119,9 @@ export function generateIdentifier(
             currentId.push(prevPos);
             return generateIdentifier(prevTail, nextTail, currentId, peer);
         } else {
-            throw new Error("identifier ordering");
+            throw new TextError("identifier ordering");
         }
     } else {
-        throw new Error("identifier ordering");
+        throw new TextError("identifier ordering");
     }
 }
