@@ -142,10 +142,10 @@ export class CRDT {
                         // merge lines
                         const currentLineAfter = this.document[currentRow + 1].splice(0);
                         this.document[currentRow] = this.document[currentRow].concat(currentLineAfter);
+                        this.document.splice(currentRow + 1, 1);
                     }
                 });
         });
-        this.removeLines();
 
         if (currentColumn !== delta.start.column - 1) {
             throw new TextError("incorrect indices");
@@ -190,8 +190,8 @@ export class CRDT {
             // merge lines
             const currentLineAfter = this.document[index.row + 1].splice(0);
             this.document[index.row] = this.document[index.row].concat(currentLineAfter);
+            this.document.splice(index.row + 1, 1);
         }
-        this.removeLines();
         // update local editor
         let indexNext: Index;
         if (ch.data === "\n") {
@@ -216,14 +216,6 @@ export class CRDT {
         return lines;
     }
 
-    /* Remove empty lines from document */
-    private removeLines(): void {
-        this.document = this.document.filter(str => str.join("") != "");
-        if (this.document.length === 0) {
-            this.document.push([]);
-        }
-    }
-
     /* Find insert/delete index of a character */
     private findPosition(ch: Char, op: Operation): Index {
         let min = 0;
@@ -239,7 +231,14 @@ export class CRDT {
             }
             throw new TextError("character not in document");
         }
-        if (compareChar(ch, this.document[max][this.document[max].length - 1]) === 1) {
+
+        let lastCh: Char;
+        if (this.document[max].length === 0) {
+            lastCh = this.document[max - 1][this.document[max - 1].length - 1];
+        } else {
+            lastCh = this.document[max][this.document[max].length - 1];
+        }
+        if (compareChar(ch, lastCh) === 1) {
             if (op === Operation.Insert) {
                 return { row: max, column: this.document[max].length };
             }

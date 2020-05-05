@@ -139,7 +139,6 @@ export class Connection implements ConnectionInterface {
      * @param msg - received message
      */
     private processMessage(msg: MessageInterface): void {
-        console.log(msg);
         switch (msg.messageType) {
             case MessageType.Insert:
                 this.client.crdt.remoteInsert(msg.ch);
