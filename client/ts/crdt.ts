@@ -25,10 +25,10 @@ export interface Index {
  * **Note:** corresponds to object returned by editor upon `change` event.
  */
 export interface Delta {
-    action: string;
-    start: Index;
-    end: Index;
-    lines: string[];
+    readonly action: string;
+    readonly start: Index;
+    readonly end: Index;
+    readonly lines: string[];
 }
 
 /**
@@ -63,7 +63,7 @@ export class CRDT {
             throw new TextError("input delta not an insert operation");
         }
         this.counter++;
-        const lines = this.parseLines(delta.lines);
+        const lines = this.parseLines(delta.lines.slice());
 
         // initialize indices
         let currentRow = delta.start.row;
@@ -116,7 +116,7 @@ export class CRDT {
             throw new TextError("input delta not a delete operation");
         }
         this.counter++;
-        const lines = this.parseLines(delta.lines);
+        const lines = this.parseLines(delta.lines.slice());
 
         // initialize indices
         let currentRow = delta.end.row;
