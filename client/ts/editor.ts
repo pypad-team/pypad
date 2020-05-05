@@ -34,6 +34,7 @@ export class Editor implements EditorInterface {
         this.enabled = false;
         this.remoteCursors = new Map<string, RemoteCursor>();
 
+        this.disable();
         this.listenLocalChanges();
         this.listenCursorChanges();
     }
