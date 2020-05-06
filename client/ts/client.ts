@@ -25,12 +25,22 @@ export class Client implements ClientInterface {
     public editor: EditorInterface;
     public connection: ConnectionInterface;
     public crdt: CRDT;
+    public name?: string;
 
     public constructor() {
         this.uuid = uuid();
         this.editor = new Editor(this);
         this.connection = new Connection(this.getHostID(), this);
         this.crdt = new CRDT(this.uuid, this);
+        this.name = "";
+    }
+
+    /**
+     * Set the name of the client
+     * @param name - name of the client
+     */
+    public setName(name: string): void {
+        this.name = name;
     }
 
     /** Get connection link to connect to peer network */

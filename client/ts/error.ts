@@ -13,3 +13,11 @@ export class TextError extends Error {
         Object.setPrototypeOf(this, TextError.prototype);
     }
 }
+
+/** Custom error to indicate a peer not found in peer-to-peer network */
+export class PeerNotFoundError extends Error {
+    constructor(message: string) {
+        super(message);
+        Object.setPrototypeOf(this, PeerNotFoundError.prototype);
+    }
+}
