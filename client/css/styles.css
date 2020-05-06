@@ -1,13 +1,40 @@
-#editor {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+:root {
+    --bg-color: #2E3440;
+    --fg-color: #434C5E;
 }
 
-#share {
-    position: absolute;
-    top: 0;
-    right: 0;
+main {
+    height: calc(100vh - 50px);
+}
+
+footer {
+    height: 50px;
+    background-color: var(--fg-color);
+}
+
+#editor {
+    margin-top: 35px;
+    height: calc(100% - 35px);
+}
+
+#console {
+    margin-top: 35px;
+    height: calc(100% - 35px);
+}
+
+.split {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    background-color: var(--bg-color);
+}
+
+.split,
+.gutter.gutter-horizontal {
+    float: left;
+    height: 100%;
+}
+
+.gutter {
+    background-color: var(--fg-color);
 }

@@ -31,6 +31,10 @@ export class Editor implements EditorInterface {
             mode: "ace/mode/python",
             theme: "ace/theme/nord_dark"
         });
+        // TODO customize editor
+        this.editor.setFontSize("16px");
+        this.editor.setShowPrintMargin(false);
+
         this.enabled = false;
         this.remoteCursors = new Map<string, RemoteCursor>();
 

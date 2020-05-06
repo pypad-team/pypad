@@ -3,15 +3,35 @@
 
 <head>
     <title>collabd</title>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
     <link rel="stylesheet" type="text/css" href="/css/styles.css">
 </head>
 
 <body>
-    <div id="editor"></div>
-    <button id="share">Link</button>
-    <script src="https://cdn.jsdelivr.net/npm/peerjs@0.3.20/dist/peer.min.js" crossorigin="anonymous"></script>
+
+    <main>
+        <div id="split-left" class="split">
+            <div id="editor">for i in range(10):
+    print(i)</div>
+        </div>
+        <div id="split-right" class="split">
+            <div id="console"></div>
+        </div>
+    </main>
+
+    <footer>
+        <button id="share">Link</button>
+    </footer>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/0.3.20/peer.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.5.11/split.min.js" crossorigin="anonymous"></script>
     <script src="/js/bundle.js" type="text/javascript" charset="utf-8"></script>
+    <script>
+        Split(["#split-left", "#split-right"], {
+            sizes: [60, 40],
+        });
+    </script>
 </body>
 
 </html>
