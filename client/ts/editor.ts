@@ -65,6 +65,14 @@ export class Editor implements EditorInterface {
     }
 
     /**
+     * Set the text of the document
+     * @param text - text to set the document to
+     */
+    public setText(text: string): void {
+        this.editor.setValue(text);
+    }
+
+    /**
      * Set a cursor to be displayed in the editor.
      *
      * @param cursor - remote cursor to insert
