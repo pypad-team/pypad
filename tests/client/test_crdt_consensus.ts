@@ -403,7 +403,6 @@ describe("crdt_consensus", () => {
                 for (let j = 0; j < 10; j++) {
                     net.randomInsertDelete(0.5);
                 }
-                console.log(i);
                 net.run(false);
             }
 
@@ -478,7 +477,6 @@ describe("crdt_consensus", () => {
                 for (let j = 0; j < 10; j++) {
                     net.randomInsertDelete(0.5);
                 }
-                console.log(i);
                 net.run(true);
             }
 

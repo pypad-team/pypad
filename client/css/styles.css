@@ -1,25 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
+
 :root {
+    --text: #ECEFF4;
     --bg-color: #2E3440;
     --fg-color: #434C5E;
+    --border: #5E6B6B;
 }
 
 main {
     height: calc(100vh - 50px);
 }
 
-footer {
-    height: 50px;
-    background-color: var(--fg-color);
-}
-
 #editor {
     margin-top: 35px;
     height: calc(100% - 35px);
+    font-family: 'Roboto Mono', monospace;
 }
 
 #console {
     margin-top: 35px;
     height: calc(100% - 35px);
+}
+
+#disable {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+footer {
+    height: 50px;
+    background-color: var(--fg-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.footer-left {
+    margin-left: 20px;
+    display: flex;
+}
+
+.footer-right {
+    margin-right: 20px;
+}
+
+.peer {
+    margin-left: 20px;
+    padding-top: 2.5px;
+    display: inline-block;
+}
+
+.peer-dot {
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    /* temp color */
+    background-color: #BF616A;
+}
+
+.peer-name {
+    color: var(--text);
+    font-size: 12px;
+    font-family: 'Open Sans', sans-serif;
+}
+
+button {
+    padding: 4px 16px;
+    color: var(--text);
+    text-align: center;
+    text-decoration: none;
+    font-size: 14px;
+    font-family: 'Open Sans', sans-serif;
+    background-color: var(--fg-color);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+}
+
+#link {
+    cursor: pointer;
+}
+
+#link:disabled {
+    cursor: default;
+}
+
+#reset {
+    cursor: pointer;
+}
+
+#reset:disabled {
+    cursor: default;
 }
 
 .split {
@@ -37,4 +110,37 @@ footer {
 
 .gutter {
     background-color: var(--fg-color);
+}
+
+/* TODO cleanup overlay */
+
+#entry {
+    position: relative;
+    width: 40%;
+    top: 30%;
+    margin: auto;
+}
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+
+.form-field {
+    width: 100%;
+    padding: 8px 0;
+    border: 0;
+    border-bottom: 2px solid grey;
+    outline: 0;
+    font-family: inherit;
+    font-size: 2rem;
+    color: white;
+    background: transparent;
+    box-shadow: none;
 }

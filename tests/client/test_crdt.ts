@@ -512,4 +512,75 @@ describe("crdt", () => {
             expect(document).to.deep.equal(["abbbba"]);
         });
     });
+    describe("initDocument", () => {
+        it("initializes text", () => {
+            const client = new TestClient();
+
+            client.crdt.initDocument("aabb");
+            const document = toText(client.crdt.document);
+            expect(document).to.deep.equal(["aabb"]);
+        });
+        it("initializes text with newline", () => {
+            const client = new TestClient();
+
+            client.crdt.initDocument("aabb\naabb\nbbaa\nbbaa");
+            const document = toText(client.crdt.document);
+            expect(document).to.deep.equal(["aabb\n", "aabb\n", "bbaa\n", "bbaa"]);
+        });
+    });
+    describe("resetDocument", () => {
+        it("resets document", () => {
+            const client = new TestClient();
+            client.crdt.document = [
+                [
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" }
+                ]
+            ];
+            const initDocument = [
+                [
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "c" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "d" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "d" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "c" }
+                ]
+            ];
+
+            client.crdt.resetDocument(initDocument);
+            const document = toText(client.crdt.document);
+            expect(document).to.deep.equal(["cddc"]);
+        });
+        it("resets document with newline", () => {
+            const client = new TestClient();
+            client.crdt.document = [
+                [
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" }
+                ]
+            ];
+            const initDocument = [
+                [
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "c" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "d" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "d" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "c" },
+                    { id: [{ digit: 50, peer: "1" }], uuid: client.uuid, counter: 0, data: "\n" }
+                ],
+                [
+                    { id: [{ digit: 60, peer: "1" }], uuid: client.uuid, counter: 0, data: "c" },
+                    { id: [{ digit: 70, peer: "1" }], uuid: client.uuid, counter: 0, data: "d" },
+                    { id: [{ digit: 80, peer: "1" }], uuid: client.uuid, counter: 0, data: "d" },
+                    { id: [{ digit: 90, peer: "1" }], uuid: client.uuid, counter: 0, data: "c" }
+                ]
+            ];
+
+            client.crdt.resetDocument(initDocument);
+            const document = toText(client.crdt.document);
+            expect(document).to.deep.equal(["cddc\n", "cddc"]);
+        });
+    });
 });

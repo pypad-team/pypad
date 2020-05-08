@@ -11,15 +11,36 @@
 
     <main>
         <div id="split-left" class="split">
-            <div id="editor"></div>
+            <div id="editor"><div id="disable" style="display: none"></div></div>
         </div>
         <div id="split-right" class="split">
             <div id="console"></div>
         </div>
     </main>
 
+    <div class="overlay" id="overlay">
+        <form id="entry" onsubmit="return false">
+            <input type="input" class="form-field" placeholder="Name" id="name" required />
+        </form>
+    </div>
+
     <footer>
-        <button id="share">Link</button>
+        <div class="footer-left">
+            <button id="link">Link</button>
+            <div class="peer-list">
+                <div class="peer">
+                    <span class="peer-dot"></span>
+                    <span class="peer-name">Test Name 1</span>
+                </div>
+                <div class="peer">
+                    <span class="peer-dot"></span>
+                    <span class="peer-name">Test Name 2</span>
+                </div>
+            </div>
+        </div>
+        <div class="footer-right">
+            <button id="reset">Reset</button>
+        </div>
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.js" crossorigin="anonymous"></script>

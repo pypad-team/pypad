@@ -3,7 +3,10 @@ export enum MessageType {
     Insert,
     Delete,
     Sync,
-    Cursor
+    Cursor,
+    Join,
+    Leave,
+    Update
 }
 
 /** Generic message interface */

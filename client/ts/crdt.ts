@@ -204,6 +204,59 @@ export class CRDT {
         this.processBuffer();
     }
 
+    /**
+     * Initialize the CRDT document. Initializing the document removes
+     * previous internal state maintained by the CRDT.
+     *
+     * @param initText - text to initialize the CRDT to
+     */
+    public initDocument(initText: string): void {
+        // remove existing state
+        this.document = [[]];
+
+        const index = { row: 0, column: 0 };
+
+        Array.from(initText).forEach(ch => {
+            if (ch === "\n") {
+                this.localInsert({
+                    action: "insert",
+                    start: { row: index.row, column: index.column },
+                    end: { row: index.row + 1, column: 0 },
+                    lines: ["", ""]
+                });
+                // update index
+                index.row += 1;
+                index.column = 0;
+            } else {
+                this.localInsert({
+                    action: "insert",
+                    start: { row: index.row, column: index.column },
+                    end: { row: index.row, column: index.column + 1 },
+                    lines: [ch]
+                });
+                // update index
+                index.column += 1;
+            }
+        });
+    }
+
+    /**
+     * Reset the CRDT document to match a remote CRDT. Resetting the
+     * document removes previous internal state maintained by the CRDT.
+     *
+     * @param document - remote document to initialize the CRDT to
+     */
+    public resetDocument(document: Char[][]): void {
+        // remove existing state
+        this.document = [[]];
+
+        document.forEach(documentRow => {
+            documentRow.forEach(ch => {
+                this.remoteInsert(ch);
+            });
+        });
+    }
+
     /* Attempt to delete characters in buffer */
     private processBuffer(): void {
         const buffer = this.buffer.slice();

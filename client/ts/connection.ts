@@ -1,6 +1,8 @@
 import { ClientInterface } from "./client";
-import { ConnectionError } from "./error";
+import { generateColor } from "./color";
+import { ConnectionError, PeerNotFoundError } from "./error";
 import { MessageInterface, MessageType } from "./message";
+import { PeerData } from "./peer";
 
 /** PeerJS peer class; source loaded using CDN */
 declare const Peer: any;
@@ -31,6 +33,7 @@ export class Connection implements ConnectionInterface {
 
     private turnServerConnection?: any;
     private peerConnections: Map<string, any>;
+    private peers: Map<string, PeerData>;
 
     constructor(hostID: string, client: ClientInterface) {
         this.hostID = hostID;
@@ -43,6 +46,7 @@ export class Connection implements ConnectionInterface {
         this.attemptingReconnect = false;
 
         this.peerConnections = new Map<string, any>();
+        this.peers = new Map<string, PeerData>();
         this.connectToNetwork();
     }
 
@@ -91,6 +95,31 @@ export class Connection implements ConnectionInterface {
             return this.id;
         }
         return this.hostID;
+    }
+
+    /**
+     * Get the ID of the peer
+     * @returns ID of the peer
+     */
+    public getID(): string {
+        return this.id;
+    }
+
+    /**
+     * Get the peer data for a peer in peer-to-peer network
+     *
+     * @param id - ID of peer to get data for
+     * @returns peer data associated with given ID
+     *
+     * @throws {@link PeerNotFoundError}
+     * Thrown peer not found in peer-to-peer network
+     */
+    public getPeerData(id: string): PeerData {
+        const peerData = this.peers.get(id);
+        if (peerData === undefined) {
+            throw new PeerNotFoundError("peer not found in network");
+        }
+        return peerData;
     }
 
     /**
@@ -148,18 +177,47 @@ export class Connection implements ConnectionInterface {
                 break;
             case MessageType.Sync:
                 // TODO implement sync
+                // Send peer data to others
+                this.sendMessage({
+                    id: this.id,
+                    messageType: MessageType.Join,
+                    name: this.client.name
+                });
                 break;
             case MessageType.Cursor:
                 this.client.editor.setCursor(
                     {
                         start: msg.start,
                         end: msg.end,
-                        color: msg.color,
-                        label: Math.random()
+                        type: msg.cursorType
                     },
-                    ""
+                    msg.id
                 );
                 break;
+            case MessageType.Join:
+                this.peers.set(msg.id, {
+                    id: msg.id,
+                    name: msg.name,
+                    color: generateColor()
+                });
+                break;
+            case MessageType.Leave:
+                this.peers.delete(msg.id);
+                this.client.editor.removeCursor(msg.id);
+                break;
+            case MessageType.Update: {
+                const existingPeer = this.peers.get(msg.id);
+                if (existingPeer === undefined) {
+                    this.peers.set(msg.id, {
+                        id: msg.id,
+                        name: msg.name,
+                        color: generateColor()
+                    });
+                } else {
+                    existingPeer.name = msg.name;
+                }
+                break;
+            }
         }
     }
 
@@ -306,14 +364,37 @@ export class Connection implements ConnectionInterface {
                 if (this.peerConnections.has(connection.peer)) {
                     this.peerConnections.delete(connection.peer);
                 }
+                this.peers.delete(connection.peer);
+                this.client.editor.removeCursor(connection.peer);
+                this.sendMessage({
+                    id: connection.peer,
+                    messageType: MessageType.Leave
+                });
             }).bind(this)
         );
         connection.on(
             "open",
             ((): void => {
-                this.sendMessage({
+                connection.send({
                     id: this.id,
-                    messageType: MessageType.Sync
+                    messageType: MessageType.Sync,
+                    name: this.client.name
+                });
+                // Send all existing peer data to new peer
+                connection.send({
+                    id: this.id,
+                    messageType: MessageType.Join,
+                    name: this.client.name
+                });
+                this.peers.forEach((peerData: PeerData) => {
+                    if (peerData.id === connection.peer) {
+                        return;
+                    }
+                    connection.send({
+                        id: peerData.id,
+                        messageType: MessageType.Join,
+                        name: peerData.name
+                    });
                 });
             }).bind(this)
         );
