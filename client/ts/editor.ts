@@ -135,7 +135,6 @@ export class Editor implements EditorInterface {
                 "text",
                 true
             );
-            console.log(cursor);
         });
 
         // timeout until markers are inserted into the editor
@@ -167,12 +166,44 @@ export class Editor implements EditorInterface {
     public enable(): void {
         this.editor.setReadOnly(false);
         this.enabled = true;
+        const editorElement = document.getElementById("editor");
+        if (editorElement !== null) {
+            editorElement.style.backgroundColor = "";
+        }
+        const shareButton = document.getElementById("share") as HTMLButtonElement;
+        if (shareButton !== null) {
+            shareButton.disabled = false;
+        }
+        const statusDot = document.getElementById("status-dot");
+        if (statusDot !== null) {
+            statusDot.style.backgroundColor = "green";
+        }
+        const statusElement = document.getElementById("status");
+        if (statusElement !== null) {
+            statusElement.innerHTML = "<div class='dot' style='background-color: green'></div>Connected";
+        }
     }
 
     /** Disable the editor  */
     public disable(): void {
         this.editor.setReadOnly(true);
         this.enabled = false;
+        const editorElement = document.getElementById("editor");
+        if (editorElement !== null) {
+            editorElement.style.backgroundColor = "#BF616A26";
+        }
+        const shareButton = document.getElementById("share") as HTMLButtonElement;
+        if (shareButton !== null) {
+            shareButton.disabled = true;
+        }
+        const statusDot = document.getElementById("status-dot");
+        if (statusDot !== null) {
+            statusDot.style.backgroundColor = "red";
+        }
+        const statusElement = document.getElementById("status");
+        if (statusElement !== null) {
+            statusElement.innerHTML = "<div class='dot' style='background-color: red'></div>Disconnected";
+        }
     }
 
     /* Listen for local changes in editor to update CRDT */

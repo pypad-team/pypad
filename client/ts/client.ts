@@ -4,6 +4,7 @@ import { Connection, ConnectionInterface } from "./connection";
 import { CRDT } from "./crdt";
 import { Editor, EditorInterface } from "./editor";
 import { ConnectionError } from "./error";
+import { MessageType } from "./message";
 
 /** Generic client interface */
 export interface ClientInterface {
@@ -32,7 +33,6 @@ export class Client implements ClientInterface {
         this.editor = new Editor(this);
         this.connection = new Connection(this.getHostID(), this);
         this.crdt = new CRDT(this.uuid, this);
-        this.name = "";
     }
 
     /**
@@ -41,6 +41,13 @@ export class Client implements ClientInterface {
      */
     public setName(name: string): void {
         this.name = name;
+        if (this.connection.isConnectionLive()) {
+            this.connection.sendMessage({
+                messageType: MessageType.Update,
+                id: this.connection.getID(),
+                name: this.name
+            });
+        }
     }
 
     /** Get connection link to connect to peer network */

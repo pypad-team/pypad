@@ -98,6 +98,14 @@ export class Connection implements ConnectionInterface {
     }
 
     /**
+     * Get the ID of the peer
+     * @returns ID of the peer
+     */
+    public getID(): string {
+        return this.id;
+    }
+
+    /**
      * Get the peer data for a peer in peer-to-peer network
      *
      * @param id - ID of peer to get data for
@@ -197,6 +205,19 @@ export class Connection implements ConnectionInterface {
                 this.peers.delete(msg.id);
                 this.client.editor.removeCursor(msg.id);
                 break;
+            case MessageType.Update: {
+                const existingPeer = this.peers.get(msg.id);
+                if (existingPeer === undefined) {
+                    this.peers.set(msg.id, {
+                        id: msg.id,
+                        name: msg.name,
+                        color: generateColor()
+                    });
+                } else {
+                    existingPeer.name = msg.name;
+                }
+                break;
+            }
         }
     }
 
@@ -340,7 +361,6 @@ export class Connection implements ConnectionInterface {
         connection.on(
             "close",
             ((): void => {
-                console.log(connection.peer);
                 if (this.peerConnections.has(connection.peer)) {
                     this.peerConnections.delete(connection.peer);
                 }
@@ -355,7 +375,6 @@ export class Connection implements ConnectionInterface {
         connection.on(
             "open",
             ((): void => {
-                console.log(connection.peer);
                 connection.send({
                     id: this.id,
                     messageType: MessageType.Sync,

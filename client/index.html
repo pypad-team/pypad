@@ -4,6 +4,7 @@
 <head>
     <title>collabd</title>
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="/css/styles.css">
 </head>
 
@@ -11,15 +12,25 @@
 
     <main>
         <div id="split-left" class="split">
-            <div id="editor"></div>
+            <div id="editor"><div id="disable" style="display: none"></div></div>
         </div>
         <div id="split-right" class="split">
             <div id="console"></div>
         </div>
     </main>
 
+    <div class="overlay" id="overlay">
+        <form id="entry" onsubmit="return false">
+            <input type="input" class="form-field" placeholder="Name" id="name" required />
+        </form>
+    </div>
+
     <footer>
-        <button id="share">Link</button>
+        <button id="share">
+            <i class="fas fa-share-alt"></i>
+        </button>
+        <div id="status"><div class="dot" id="status-dot"></div></div>
+        <div id="peers"></div>
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.js" crossorigin="anonymous"></script>

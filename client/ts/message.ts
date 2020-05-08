@@ -5,7 +5,8 @@ export enum MessageType {
     Sync,
     Cursor,
     Join,
-    Leave
+    Leave,
+    Update
 }
 
 /** Generic message interface */
