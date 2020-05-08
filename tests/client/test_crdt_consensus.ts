@@ -336,4 +336,153 @@ describe("crdt_consensus", () => {
             });
         });
     });
+    // CRDT reaches consensus during randomized, concurrent insert/delete operations,
+    // assuming messages are received in-order.
+    describe("random consensus; reliable net", () => {
+        it("supports 10 inserts into 4 crdts", () => {
+            const net = new TestNetwork(4);
+            for (let i = 0; i < 10; i++) {
+                net.randomInsertDelete(1.0);
+            }
+            net.run(false);
+
+            net.peers.forEach(peer => {
+                expect(peer.crdt.document).to.deep.equal(net.peers[0].crdt.document);
+            });
+        });
+        it("supports 1000 inserts into 4 crdts", () => {
+            const net = new TestNetwork(4);
+            for (let i = 0; i < 1000; i++) {
+                net.randomInsertDelete(1.0);
+            }
+            net.run(false);
+
+            net.peers.forEach(peer => {
+                expect(peer.crdt.document).to.deep.equal(net.peers[0].crdt.document);
+            });
+        });
+        it("supports 1000 inserts into 4 crdts intermittent net", () => {
+            const net = new TestNetwork(4);
+            for (let i = 0; i < 100; i++) {
+                for (let j = 0; j < 10; j++) {
+                    net.randomInsertDelete(1.0);
+                }
+                net.run(false);
+            }
+
+            net.peers.forEach(peer => {
+                expect(peer.crdt.document).to.deep.equal(net.peers[0].crdt.document);
+            });
+        });
+        it("supports 10 insert/deletes into 4 crdts", () => {
+            const net = new TestNetwork(4);
+            for (let i = 0; i < 10; i++) {
+                net.randomInsertDelete(0.5);
+            }
+            net.run(false);
+
+            net.peers.forEach(peer => {
+                expect(peer.crdt.document).to.deep.equal(net.peers[0].crdt.document);
+            });
+        });
+        it("supports 1000 insert/deletes into 4 crdts", () => {
+            const net = new TestNetwork(4);
+            for (let i = 0; i < 1000; i++) {
+                net.randomInsertDelete(0.5);
+            }
+            net.run(false);
+
+            net.peers.forEach(peer => {
+                expect(peer.crdt.document).to.deep.equal(net.peers[0].crdt.document);
+            });
+        });
+        it("supports 1000 insert/deletes into 4 crdts intermittent net", () => {
+            const net = new TestNetwork(4);
+            // TODO
+            for (let i = 0; i < 100; i++) {
+                for (let j = 0; j < 10; j++) {
+                    net.randomInsertDelete(0.5);
+                }
+                net.run(false);
+            }
+
+            net.peers.forEach(peer => {
+                expect(peer.crdt.document).to.deep.equal(net.peers[0].crdt.document);
+            });
+        });
+    });
+    // CRDT reaches consensus during randomized, concurrent insert/delete operations,
+    // assuming messages are received out-of-order.
+    describe("random consensus; unreliable net", () => {
+        it("supports 10 inserts into 4 crdts", () => {
+            const net = new TestNetwork(4);
+            for (let i = 0; i < 10; i++) {
+                net.randomInsertDelete(1.0);
+            }
+            net.run(true);
+
+            net.peers.forEach(peer => {
+                expect(peer.crdt.document).to.deep.equal(net.peers[0].crdt.document);
+            });
+        });
+        it("supports 1000 inserts into 4 crdts", () => {
+            const net = new TestNetwork(4);
+            for (let i = 0; i < 1000; i++) {
+                net.randomInsertDelete(1.0);
+            }
+            net.run(true);
+
+            net.peers.forEach(peer => {
+                expect(peer.crdt.document).to.deep.equal(net.peers[0].crdt.document);
+            });
+        });
+        it("supports 1000 inserts into 4 crdts intermittent net", () => {
+            const net = new TestNetwork(4);
+            for (let i = 0; i < 100; i++) {
+                for (let j = 0; j < 10; j++) {
+                    net.randomInsertDelete(1.0);
+                }
+                net.run(true);
+            }
+
+            net.peers.forEach(peer => {
+                expect(peer.crdt.document).to.deep.equal(net.peers[0].crdt.document);
+            });
+        });
+        it("supports 10 insert/deletes into 4 crdts", () => {
+            const net = new TestNetwork(4);
+            for (let i = 0; i < 10; i++) {
+                net.randomInsertDelete(0.5);
+            }
+            net.run(true);
+
+            net.peers.forEach(peer => {
+                expect(peer.crdt.document).to.deep.equal(net.peers[0].crdt.document);
+            });
+        });
+        it("supports 1000 insert/deletes into 4 crdts", () => {
+            const net = new TestNetwork(4);
+            for (let i = 0; i < 1000; i++) {
+                net.randomInsertDelete(0.5);
+            }
+            net.run(true);
+
+            net.peers.forEach(peer => {
+                expect(peer.crdt.document).to.deep.equal(net.peers[0].crdt.document);
+            });
+        });
+        it("supports 1000 insert/deletes into 4 crdts intermittent net", () => {
+            const net = new TestNetwork(4);
+            for (let i = 0; i < 100; i++) {
+                for (let j = 0; j < 10; j++) {
+                    net.randomInsertDelete(0.5);
+                }
+                net.run(true);
+            }
+
+            net.peers.forEach(peer => {
+                expect(peer.crdt.document).to.deep.equal(net.peers[0].crdt.document);
+            });
+        });
+    });
 });

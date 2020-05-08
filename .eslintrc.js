@@ -13,6 +13,7 @@ module.exports = {
     ],
     rules: {
         "tsdoc/syntax": "warn",
-        "@typescript-eslint/no-explicit-any": "off"
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
     }
 };

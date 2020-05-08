@@ -1,10 +1,11 @@
-/* Color RGB representation */
+/** Color RGB representation */
 export interface Color {
     r: number;
     g: number;
     b: number;
 }
 
+/** Generate a random color */
 export function generateColor(): Color {
     return {
         r: Math.random() * 256,

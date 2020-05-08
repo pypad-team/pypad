@@ -122,19 +122,24 @@ export class Editor implements EditorInterface {
             }
             let range;
             if (cursor.type === CursorType.Bar) {
-                range = new ace.Range(cursor.start.row, cursor.start.column - 1, cursor.start.row, cursor.end.column);
+                range = new ace.Range(cursor.start.row, cursor.start.column - 1, cursor.end.row, cursor.end.column);
             } else {
-                range = new ace.Range(cursor.start.row, cursor.start.column, cursor.start.row, cursor.end.column);
+                range = new ace.Range(cursor.start.row, cursor.start.column, cursor.end.row, cursor.end.column);
             }
             const cursorType = (cursor.type as string).toLowerCase();
-            const peerData = this.client.connection.getPeerData(peerID);
-            const name = peerData.name === undefined ? "" : peerData.name;
-            cursor.elementID = this.editor.session.addMarker(
-                range,
-                `remoteCursor-${peerData.color.r}-${peerData.color.g}-${peerData.color.b}-${name}-${cursorType}`,
-                "text",
-                true
-            );
+            try {
+                const peerData = this.client.connection.getPeerData(peerID);
+                const name = peerData.name === undefined ? "" : peerData.name;
+                cursor.elementID = this.editor.session.addMarker(
+                    range,
+                    `remoteCursor-${peerData.color.r}-${peerData.color.g}-${peerData.color.b}-${name}-${cursorType}`,
+                    "text",
+                    true
+                );
+            } catch (PeerNotFoundError) {
+                // Skip adding peer cursor if peer data is not found
+                return;
+            }
         });
 
         // timeout until markers are inserted into the editor
@@ -152,9 +157,11 @@ export class Editor implements EditorInterface {
                     // parse the class name to style the cursor
                     const rgb = `${tokens[1]}, ${tokens[2]}, ${tokens[3]}`;
                     (cursorElement as HTMLElement).style.position = "absolute";
-                    (cursorElement as HTMLElement).style.borderRight = `2px solid rgba(${rgb}, 0.5)`;
                     if (tokens[5] === (CursorType.Selection as string).toLowerCase()) {
                         (cursorElement as HTMLElement).style.backgroundColor = `rgba(${rgb}, 0.2)`;
+                    } else {
+                        (cursorElement as HTMLElement).style.borderRight = `2px solid rgba(${rgb}, 0.5)`;
+                        (cursorElement as HTMLElement).style.borderRadius = "0";
                     }
                 });
             }).bind(this),
@@ -166,44 +173,24 @@ export class Editor implements EditorInterface {
     public enable(): void {
         this.editor.setReadOnly(false);
         this.enabled = true;
-        const editorElement = document.getElementById("editor");
-        if (editorElement !== null) {
-            editorElement.style.backgroundColor = "";
-        }
-        const shareButton = document.getElementById("share") as HTMLButtonElement;
-        if (shareButton !== null) {
-            shareButton.disabled = false;
-        }
+        const linkButton = document.getElementById("link") as HTMLButtonElement;
         const statusDot = document.getElementById("status-dot");
-        if (statusDot !== null) {
-            statusDot.style.backgroundColor = "green";
-        }
-        const statusElement = document.getElementById("status");
-        if (statusElement !== null) {
-            statusElement.innerHTML = "<div class='dot' style='background-color: green'></div>Connected";
-        }
+        const statusText = document.getElementById("status-text");
+        linkButton!.disabled = false;
+        statusDot!.style.backgroundColor = "green";
+        statusText!.innerHTML = "Connected";
     }
 
     /** Disable the editor  */
     public disable(): void {
         this.editor.setReadOnly(true);
         this.enabled = false;
-        const editorElement = document.getElementById("editor");
-        if (editorElement !== null) {
-            editorElement.style.backgroundColor = "#BF616A26";
-        }
-        const shareButton = document.getElementById("share") as HTMLButtonElement;
-        if (shareButton !== null) {
-            shareButton.disabled = true;
-        }
+        const linkButton = document.getElementById("link") as HTMLButtonElement;
         const statusDot = document.getElementById("status-dot");
-        if (statusDot !== null) {
-            statusDot.style.backgroundColor = "red";
-        }
-        const statusElement = document.getElementById("status");
-        if (statusElement !== null) {
-            statusElement.innerHTML = "<div class='dot' style='background-color: red'></div>Disconnected";
-        }
+        const statusText = document.getElementById("status-text");
+        linkButton!.disabled = true;
+        statusDot!.style.backgroundColor = "red";
+        statusText!.innerHTML = "Reconnecting";
     }
 
     /* Listen for local changes in editor to update CRDT */

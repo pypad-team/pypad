@@ -202,21 +202,14 @@ export class Connection implements ConnectionInterface {
                     color: color
                 });
                 // Update display to show new user
-                const peersElement = document.getElementById("peers");
-                if (peersElement !== null) {
-                    const wrapper = document.createElement("div");
-                    wrapper.id = msg.id;
-                    wrapper.innerHTML = `<div class='dot' style='background-color: rgb(${color.r}, ${color.g}, ${color.b})'></div> ${msg.name || ''}`;
-                    peersElement.appendChild(wrapper);
-                }
+                this.client.addPeerDisplay(color, msg.name || "", msg.id);
                 break;
             }
             case MessageType.Leave: {
                 this.peers.delete(msg.id);
                 this.client.editor.removeCursor(msg.id);
                 // Remove user from display
-                const peerElement = document.getElementById(msg.id);
-                peerElement.remove();
+                this.client.removePeerDisplay(msg.id);
                 break;
             }
             case MessageType.Update: {
@@ -229,18 +222,10 @@ export class Connection implements ConnectionInterface {
                         name: msg.name,
                         color: color
                     });
-                    const peersElement = document.getElementById("peers");
-                    if (peersElement !== null) {
-                        const wrapper = document.createElement("div");
-                        wrapper.id = msg.id;
-                        wrapper.innerHTML = `<div class='dot' style='background-color: rgb(${color.r}, ${color.g}, ${color.b})'></div> ${msg.name}`;
-                        peersElement.appendChild(wrapper);
-                    }
+                    this.client.addPeerDisplay(color, msg.name || "", msg.id);
                 } else {
                     existingPeer.name = msg.name;
-                    const color = existingPeer.color;
-                    const wrapper = document.getElementById(msg.id);
-                    wrapper.innerHTML = `<div class='dot' style='background-color: rgb(${color.r}, ${color.g}, ${color.b})'></div> ${msg.name}`;
+                    this.client.updatePeerDisplay(msg.id, msg.name);
                 }
                 break;
             }
@@ -392,6 +377,7 @@ export class Connection implements ConnectionInterface {
                 }
                 this.peers.delete(connection.peer);
                 this.client.editor.removeCursor(connection.peer);
+                this.client.removePeerDisplay(connection.peer);
                 this.sendMessage({
                     id: connection.peer,
                     messageType: MessageType.Leave

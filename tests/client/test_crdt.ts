@@ -214,13 +214,13 @@ describe("crdt", () => {
             const client = new TestClient();
             client.crdt.document = [
                 [
-                    { id: [{ digit: 10, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 20, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 30, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" }
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" }
                 ]
             ];
-            const ch = { id: [{ digit: 1, peer: "1" }], counter: 0, data: "b" };
+            const ch = { id: [{ digit: 1, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" };
 
             client.crdt.remoteInsert(ch);
             const document = toText(client.crdt.document);
@@ -230,13 +230,13 @@ describe("crdt", () => {
             const client = new TestClient();
             client.crdt.document = [
                 [
-                    { id: [{ digit: 10, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 20, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 30, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" }
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" }
                 ]
             ];
-            const ch = { id: [{ digit: 50, peer: "1" }], counter: 0, data: "b" };
+            const ch = { id: [{ digit: 50, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" };
 
             client.crdt.remoteInsert(ch);
             const document = toText(client.crdt.document);
@@ -246,20 +246,20 @@ describe("crdt", () => {
             const client = new TestClient();
             client.crdt.document = [
                 [
-                    { id: [{ digit: 10, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 20, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 30, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 50, peer: "1" }], counter: 0, data: "\n" }
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 50, peer: "1" }], uuid: client.uuid, counter: 0, data: "\n" }
                 ],
                 [
-                    { id: [{ digit: 60, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 70, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 80, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 90, peer: "1" }], counter: 0, data: "a" }
+                    { id: [{ digit: 60, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 70, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 80, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 90, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" }
                 ]
             ];
-            const ch = { id: [{ digit: 45, peer: "1" }], counter: 0, data: "b" };
+            const ch = { id: [{ digit: 45, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" };
 
             client.crdt.remoteInsert(ch);
             const document = toText(client.crdt.document);
@@ -269,20 +269,20 @@ describe("crdt", () => {
             const client = new TestClient();
             client.crdt.document = [
                 [
-                    { id: [{ digit: 10, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 20, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 30, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 50, peer: "1" }], counter: 0, data: "\n" }
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 50, peer: "1" }], uuid: client.uuid, counter: 0, data: "\n" }
                 ],
                 [
-                    { id: [{ digit: 60, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 70, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 80, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 90, peer: "1" }], counter: 0, data: "a" }
+                    { id: [{ digit: 60, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 70, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 80, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 90, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" }
                 ]
             ];
-            const ch = { id: [{ digit: 55, peer: "1" }], counter: 0, data: "b" };
+            const ch = { id: [{ digit: 55, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" };
 
             client.crdt.remoteInsert(ch);
             const document = toText(client.crdt.document);
@@ -292,20 +292,20 @@ describe("crdt", () => {
             const client = new TestClient();
             client.crdt.document = [
                 [
-                    { id: [{ digit: 10, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 20, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 30, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 50, peer: "1" }], counter: 0, data: "\n" }
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 50, peer: "1" }], uuid: client.uuid, counter: 0, data: "\n" }
                 ],
                 [
-                    { id: [{ digit: 60, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 70, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 80, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 90, peer: "1" }], counter: 0, data: "a" }
+                    { id: [{ digit: 60, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 70, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 80, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 90, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" }
                 ]
             ];
-            const ch = { id: [{ digit: 25, peer: "1" }], counter: 0, data: "\n" };
+            const ch = { id: [{ digit: 25, peer: "1" }], uuid: client.uuid, counter: 0, data: "\n" };
 
             client.crdt.remoteInsert(ch);
             const document = toText(client.crdt.document);
@@ -315,14 +315,14 @@ describe("crdt", () => {
             const client = new TestClient();
             client.crdt.document = [
                 [
-                    { id: [{ digit: 10, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 20, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 30, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" }
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" }
                 ]
             ];
-            const ch1 = { id: [{ digit: 50, peer: "1" }], counter: 0, data: "\n" };
-            const ch2 = { id: [{ digit: 60, peer: "1" }], counter: 0, data: "\n" };
+            const ch1 = { id: [{ digit: 50, peer: "1" }], uuid: client.uuid, counter: 0, data: "\n" };
+            const ch2 = { id: [{ digit: 60, peer: "1" }], uuid: client.uuid, counter: 0, data: "\n" };
 
             client.crdt.remoteInsert(ch1);
             client.crdt.remoteInsert(ch2);
@@ -333,20 +333,20 @@ describe("crdt", () => {
             const client = new TestClient();
             client.crdt.document = [
                 [
-                    { id: [{ digit: 10, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 20, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 30, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 50, peer: "1" }], counter: 0, data: "\n" }
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 50, peer: "1" }], uuid: client.uuid, counter: 0, data: "\n" }
                 ],
                 [
-                    { id: [{ digit: 60, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 70, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 80, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 90, peer: "1" }], counter: 0, data: "a" }
+                    { id: [{ digit: 60, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 70, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 80, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 90, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" }
                 ]
             ];
-            const ch = { id: [{ digit: 55, peer: "1" }], counter: 0, data: "\n" };
+            const ch = { id: [{ digit: 55, peer: "1" }], uuid: client.uuid, counter: 0, data: "\n" };
 
             client.crdt.remoteInsert(ch);
             const document = toText(client.crdt.document);
@@ -356,23 +356,23 @@ describe("crdt", () => {
             const client = new TestClient();
             client.crdt.document = [
                 [
-                    { id: [{ digit: 10, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 20, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 30, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 50, peer: "1" }], counter: 0, data: "\n" }
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 50, peer: "1" }], uuid: client.uuid, counter: 0, data: "\n" }
                 ],
                 [
-                    { id: [{ digit: 60, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 70, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 80, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 90, peer: "1" }], counter: 0, data: "a" }
+                    { id: [{ digit: 60, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 70, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 80, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 90, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" }
                 ]
             ];
-            const ch1 = { id: [{ digit: 24, peer: "1" }], counter: 0, data: "\n" };
-            const ch2 = { id: [{ digit: 74, peer: "1" }], counter: 0, data: "\n" };
-            const ch3 = { id: [{ digit: 26, peer: "1" }], counter: 0, data: "b" };
-            const ch4 = { id: [{ digit: 76, peer: "1" }], counter: 0, data: "b" };
+            const ch1 = { id: [{ digit: 24, peer: "1" }], uuid: client.uuid, counter: 0, data: "\n" };
+            const ch2 = { id: [{ digit: 74, peer: "1" }], uuid: client.uuid, counter: 0, data: "\n" };
+            const ch3 = { id: [{ digit: 26, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" };
+            const ch4 = { id: [{ digit: 76, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" };
 
             client.crdt.remoteInsert(ch1);
             client.crdt.remoteInsert(ch2);
@@ -387,13 +387,13 @@ describe("crdt", () => {
             const client = new TestClient();
             client.crdt.document = [
                 [
-                    { id: [{ digit: 10, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 20, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 30, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" }
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" }
                 ]
             ];
-            const ch = { id: [{ digit: 10, peer: "1" }], counter: 0, data: "a" };
+            const ch = { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" };
 
             client.crdt.remoteDelete(ch);
             const document = toText(client.crdt.document);
@@ -403,13 +403,13 @@ describe("crdt", () => {
             const client = new TestClient();
             client.crdt.document = [
                 [
-                    { id: [{ digit: 10, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 20, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 30, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" }
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" }
                 ]
             ];
-            const ch = { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" };
+            const ch = { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" };
 
             client.crdt.remoteDelete(ch);
             const document = toText(client.crdt.document);
@@ -419,20 +419,20 @@ describe("crdt", () => {
             const client = new TestClient();
             client.crdt.document = [
                 [
-                    { id: [{ digit: 10, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 20, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 30, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 50, peer: "1" }], counter: 0, data: "\n" }
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 50, peer: "1" }], uuid: client.uuid, counter: 0, data: "\n" }
                 ],
                 [
-                    { id: [{ digit: 60, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 70, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 80, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 90, peer: "1" }], counter: 0, data: "a" }
+                    { id: [{ digit: 60, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 70, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 80, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 90, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" }
                 ]
             ];
-            const ch = { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" };
+            const ch = { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" };
 
             client.crdt.remoteDelete(ch);
             const document = toText(client.crdt.document);
@@ -442,20 +442,20 @@ describe("crdt", () => {
             const client = new TestClient();
             client.crdt.document = [
                 [
-                    { id: [{ digit: 10, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 20, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 30, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 50, peer: "1" }], counter: 0, data: "\n" }
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 50, peer: "1" }], uuid: client.uuid, counter: 0, data: "\n" }
                 ],
                 [
-                    { id: [{ digit: 60, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 70, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 80, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 90, peer: "1" }], counter: 0, data: "a" }
+                    { id: [{ digit: 60, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 70, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 80, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 90, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" }
                 ]
             ];
-            const ch = { id: [{ digit: 60, peer: "1" }], counter: 0, data: "a" };
+            const ch = { id: [{ digit: 60, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" };
 
             client.crdt.remoteDelete(ch);
             const document = toText(client.crdt.document);
@@ -465,20 +465,20 @@ describe("crdt", () => {
             const client = new TestClient();
             client.crdt.document = [
                 [
-                    { id: [{ digit: 10, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 20, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 30, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 50, peer: "1" }], counter: 0, data: "\n" }
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 50, peer: "1" }], uuid: client.uuid, counter: 0, data: "\n" }
                 ],
                 [
-                    { id: [{ digit: 60, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 70, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 80, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 90, peer: "1" }], counter: 0, data: "a" }
+                    { id: [{ digit: 60, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 70, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 80, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 90, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" }
                 ]
             ];
-            const ch = { id: [{ digit: 50, peer: "1" }], counter: 0, data: "\n" };
+            const ch = { id: [{ digit: 50, peer: "1" }], uuid: client.uuid, counter: 0, data: "\n" };
 
             client.crdt.remoteDelete(ch);
             const document = toText(client.crdt.document);
@@ -488,22 +488,22 @@ describe("crdt", () => {
             const client = new TestClient();
             client.crdt.document = [
                 [
-                    { id: [{ digit: 10, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 20, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 30, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 50, peer: "1" }], counter: 0, data: "\n" }
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 50, peer: "1" }], uuid: client.uuid, counter: 0, data: "\n" }
                 ],
                 [
-                    { id: [{ digit: 60, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 70, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 80, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 90, peer: "1" }], counter: 0, data: "a" }
+                    { id: [{ digit: 60, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 70, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 80, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 90, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" }
                 ]
             ];
-            const ch1 = { id: [{ digit: 50, peer: "1" }], counter: 0, data: "\n" };
-            const ch2 = { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" };
-            const ch3 = { id: [{ digit: 60, peer: "1" }], counter: 0, data: "a" };
+            const ch1 = { id: [{ digit: 50, peer: "1" }], uuid: client.uuid, counter: 0, data: "\n" };
+            const ch2 = { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" };
+            const ch3 = { id: [{ digit: 60, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" };
 
             client.crdt.remoteDelete(ch1);
             client.crdt.remoteDelete(ch2);
@@ -533,18 +533,18 @@ describe("crdt", () => {
             const client = new TestClient();
             client.crdt.document = [
                 [
-                    { id: [{ digit: 10, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 20, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 30, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" }
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" }
                 ]
             ];
             const initDocument = [
                 [
-                    { id: [{ digit: 10, peer: "1" }], counter: 0, data: "c" },
-                    { id: [{ digit: 20, peer: "1" }], counter: 0, data: "d" },
-                    { id: [{ digit: 30, peer: "1" }], counter: 0, data: "d" },
-                    { id: [{ digit: 40, peer: "1" }], counter: 0, data: "c" }
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "c" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "d" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "d" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "c" }
                 ]
             ];
 
@@ -556,25 +556,25 @@ describe("crdt", () => {
             const client = new TestClient();
             client.crdt.document = [
                 [
-                    { id: [{ digit: 10, peer: "1" }], counter: 0, data: "a" },
-                    { id: [{ digit: 20, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 30, peer: "1" }], counter: 0, data: "b" },
-                    { id: [{ digit: 40, peer: "1" }], counter: 0, data: "a" }
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "b" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "a" }
                 ]
             ];
             const initDocument = [
                 [
-                    { id: [{ digit: 10, peer: "1" }], counter: 0, data: "c" },
-                    { id: [{ digit: 20, peer: "1" }], counter: 0, data: "d" },
-                    { id: [{ digit: 30, peer: "1" }], counter: 0, data: "d" },
-                    { id: [{ digit: 40, peer: "1" }], counter: 0, data: "c" },
-                    { id: [{ digit: 50, peer: "1" }], counter: 0, data: "\n" }
+                    { id: [{ digit: 10, peer: "1" }], uuid: client.uuid, counter: 0, data: "c" },
+                    { id: [{ digit: 20, peer: "1" }], uuid: client.uuid, counter: 0, data: "d" },
+                    { id: [{ digit: 30, peer: "1" }], uuid: client.uuid, counter: 0, data: "d" },
+                    { id: [{ digit: 40, peer: "1" }], uuid: client.uuid, counter: 0, data: "c" },
+                    { id: [{ digit: 50, peer: "1" }], uuid: client.uuid, counter: 0, data: "\n" }
                 ],
                 [
-                    { id: [{ digit: 60, peer: "1" }], counter: 0, data: "c" },
-                    { id: [{ digit: 70, peer: "1" }], counter: 0, data: "d" },
-                    { id: [{ digit: 80, peer: "1" }], counter: 0, data: "d" },
-                    { id: [{ digit: 90, peer: "1" }], counter: 0, data: "c" }
+                    { id: [{ digit: 60, peer: "1" }], uuid: client.uuid, counter: 0, data: "c" },
+                    { id: [{ digit: 70, peer: "1" }], uuid: client.uuid, counter: 0, data: "d" },
+                    { id: [{ digit: 80, peer: "1" }], uuid: client.uuid, counter: 0, data: "d" },
+                    { id: [{ digit: 90, peer: "1" }], uuid: client.uuid, counter: 0, data: "c" }
                 ]
             ];
 

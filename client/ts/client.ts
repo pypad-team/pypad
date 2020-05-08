@@ -5,6 +5,7 @@ import { CRDT } from "./crdt";
 import { Editor, EditorInterface } from "./editor";
 import { ConnectionError } from "./error";
 import { MessageType } from "./message";
+import { Color } from "./color";
 
 /** Generic client interface */
 export interface ClientInterface {
@@ -36,7 +37,8 @@ export class Client implements ClientInterface {
     }
 
     /**
-     * Set the name of the client
+     * Initialize the name of the client.
+     *
      * @param name - name of the client
      */
     public setName(name: string): void {
@@ -57,6 +59,54 @@ export class Client implements ClientInterface {
             navigator.clipboard.writeText(connectLink);
         } else {
             throw new ConnectionError("client is not connected");
+        }
+    }
+
+    /**
+     * Add a peer to the peers list display
+     * @param dotColor - color of the peer's dot in the display
+     * @param name - name of the peer to display
+     * @param peerID - ID of the peer to add
+     */
+    public addPeerDisplay(dotColor: Color, name: string, peerID: string): void {
+        const peersElement = document.getElementById("peer-list");
+        const peerElement = document.createElement("div");
+        const dotElement = document.createElement("span");
+        const nameElement = document.createElement("span");
+        peerElement.id = peerID;
+        peerElement.classList.add("peer");
+        dotElement.classList.add("peer-dot");
+        nameElement.classList.add("peer-name");
+        dotElement.style.backgroundColor = `rgb(${dotColor.r}, ${dotColor.g}, ${dotColor.b})`;
+        nameElement.innerHTML = name;
+        peerElement.appendChild(dotElement);
+        peerElement.appendChild(nameElement);
+        peersElement!.appendChild(peerElement);
+    }
+
+    /**
+     * Remove a peer from the peers list display
+     * @param peerID - ID of the peer to remove
+     */
+    public removePeerDisplay(peerID: string): void {
+        const peerElement = document.getElementById(peerID);
+        peerElement!.remove();
+    }
+
+    /**
+     * Update the display of a peer in the peers list
+     * @param peerID - ID of the peer to update
+     * @param name - name of the peer to display
+     * @param dotColor - color of the peer's dot in the display
+     */
+    public updatePeerDisplay(peerID: string, name?: string, dotColor?: Color): void {
+        const peerElement = document.getElementById(peerID);
+        if (name !== undefined) {
+            (peerElement!.children[1] as HTMLElement)!.innerHTML = name;
+        }
+        if (dotColor !== undefined) {
+            (peerElement!
+                .children[0] as HTMLElement)!.style.backgroundColor = `rgb(${dotColor.r}, ${dotColor.g}, ${dotColor.b})`;
         }
     }
 

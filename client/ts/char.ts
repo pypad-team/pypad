@@ -2,9 +2,10 @@ import { compareIdentifier, Identifier } from "./identifier";
 
 /** Character object */
 export interface Char {
-    id: Identifier;
-    counter: number;
-    data: string;
+    readonly id: Identifier;
+    readonly uuid: string;
+    readonly counter: number;
+    readonly data: string;
 }
 
 /**
