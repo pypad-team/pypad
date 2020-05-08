@@ -254,6 +254,7 @@ export class CRDT {
         // remove existing state
         this.document = [[]];
 
+        this.client.editor.setText("");
         document.forEach(documentRow => {
             documentRow.forEach(ch => {
                 this.remoteInsert(ch);

@@ -176,7 +176,7 @@ export class Connection implements ConnectionInterface {
                 this.client.crdt.remoteDelete(msg.ch);
                 break;
             case MessageType.Sync:
-                // TODO implement sync
+                this.client.crdt.resetDocument(msg.document);
                 // Send peer data to others
                 this.sendMessage({
                     id: this.id,
@@ -194,27 +194,53 @@ export class Connection implements ConnectionInterface {
                     msg.id
                 );
                 break;
-            case MessageType.Join:
+            case MessageType.Join: {
+                const color = generateColor();
                 this.peers.set(msg.id, {
                     id: msg.id,
                     name: msg.name,
-                    color: generateColor()
+                    color: color
                 });
+                // Update display to show new user
+                const peersElement = document.getElementById("peers");
+                if (peersElement !== null) {
+                    const wrapper = document.createElement("div");
+                    wrapper.id = msg.id;
+                    wrapper.innerHTML = `<div class='dot' style='background-color: rgb(${color.r}, ${color.g}, ${color.b})'></div> ${msg.name || ''}`;
+                    peersElement.appendChild(wrapper);
+                }
                 break;
-            case MessageType.Leave:
+            }
+            case MessageType.Leave: {
                 this.peers.delete(msg.id);
                 this.client.editor.removeCursor(msg.id);
+                // Remove user from display
+                const peerElement = document.getElementById(msg.id);
+                peerElement.remove();
                 break;
+            }
             case MessageType.Update: {
                 const existingPeer = this.peers.get(msg.id);
+                // Update display to show user
                 if (existingPeer === undefined) {
+                    const color = generateColor();
                     this.peers.set(msg.id, {
                         id: msg.id,
                         name: msg.name,
-                        color: generateColor()
+                        color: color
                     });
+                    const peersElement = document.getElementById("peers");
+                    if (peersElement !== null) {
+                        const wrapper = document.createElement("div");
+                        wrapper.id = msg.id;
+                        wrapper.innerHTML = `<div class='dot' style='background-color: rgb(${color.r}, ${color.g}, ${color.b})'></div> ${msg.name}`;
+                        peersElement.appendChild(wrapper);
+                    }
                 } else {
                     existingPeer.name = msg.name;
+                    const color = existingPeer.color;
+                    const wrapper = document.getElementById(msg.id);
+                    wrapper.innerHTML = `<div class='dot' style='background-color: rgb(${color.r}, ${color.g}, ${color.b})'></div> ${msg.name}`;
                 }
                 break;
             }
@@ -378,6 +404,7 @@ export class Connection implements ConnectionInterface {
                 connection.send({
                     id: this.id,
                     messageType: MessageType.Sync,
+                    document: this.client.crdt.document,
                     name: this.client.name
                 });
                 // Send all existing peer data to new peer
