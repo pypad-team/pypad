@@ -93,19 +93,33 @@ export class TestNetwork {
     }
 
     /* Insert lines into specified client */
-    public peerInsert(index: number, delta: Delta): void {
-        if (index >= this.peers.length) {
+    public peerInsert(peerIndex: number, delta: Delta): void {
+        if (peerIndex >= this.peers.length) {
             throw new Error("peer out of range");
         }
-        this.peers[index].crdt.localInsert(delta);
+        this.peers[peerIndex].crdt.localInsert(delta);
     }
 
     /* Delete lines from specified client */
-    public peerDelete(index: number, delta: Delta): void {
-        if (index >= this.peers.length) {
+    public peerDelete(peerIndex: number, delta: Delta): void {
+        if (peerIndex >= this.peers.length) {
             throw new Error("peer out of range");
         }
-        this.peers[index].crdt.localDelete(delta);
+        this.peers[peerIndex].crdt.localDelete(delta);
+    }
+
+    /* Insert a random insert/delete operation into client */
+    public randomInsertDelete(insertBias: number): void {
+        // select a random client
+        const peerIndex = Math.floor(Math.random() * this.peers.length);
+
+        // generate operation and insert/delete
+        const delta = this.randomDelta(peerIndex, insertBias);
+        if (delta.action === "insert") {
+            this.peers[peerIndex].crdt.localInsert(delta);
+        } else {
+            this.peers[peerIndex].crdt.localDelete(delta);
+        }
     }
 
     /*
@@ -153,6 +167,58 @@ export class TestNetwork {
         for (let i = arr.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+    }
+
+    /* Generate a random insert/delete delta */
+    private randomDelta(index: number, insertBias: number): Delta {
+        // select a random index
+        const document = this.peers[index].crdt.document;
+        const r = Math.floor(Math.random() * document.length);
+        const c = Math.floor(Math.random() * document[r].length);
+
+        // select a random operation
+        let generateInsert = Math.random() < insertBias;
+        if (document[r][c] === undefined) {
+            generateInsert = true;
+        }
+
+        if (generateInsert) {
+            // generate an insert delta
+            const ch = this.randomChar();
+            if (ch === "\n") {
+                return {
+                    action: "insert",
+                    start: { row: r, column: c },
+                    end: { row: r + 1, column: 0 },
+                    lines: ["", ""]
+                };
+            } else {
+                return {
+                    action: "insert",
+                    start: { row: r, column: c },
+                    end: { row: r, column: c + 1 },
+                    lines: [ch]
+                };
+            }
+        } else {
+            // generate a delete delta
+            const ch = document[r][c];
+            if (ch.data === "\n") {
+                return {
+                    action: "remove",
+                    start: { row: r, column: c },
+                    end: { row: r + 1, column: 0 },
+                    lines: ["", ""]
+                };
+            } else {
+                return {
+                    action: "remove",
+                    start: { row: r, column: c },
+                    end: { row: r, column: c + 1 },
+                    lines: [ch.data]
+                };
+            }
         }
     }
 

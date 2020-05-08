@@ -183,7 +183,18 @@ describe("identifier", () => {
             let id1 = [{ digit: 1, peer: "1" }];
             const id2 = [{ digit: 2, peer: "1" }];
             // generate 100 identifiers between `id1` and `id2`
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 100; i++) {
+                const newId = generateIdentifier(id1, id2, [], peer);
+                expect(compareIdentifier(id1, newId)).to.equal(-1);
+                expect(compareIdentifier(id2, newId)).to.equal(1);
+                id1 = newId;
+            }
+        });
+        it("constructs 1000 sequential identifiers", () => {
+            let id1 = [{ digit: 1, peer: "1" }];
+            const id2 = [{ digit: 2, peer: "1" }];
+            // generate 1000 identifiers between `id1` and `id2`
+            for (let i = 0; i < 1000; i++) {
                 const newId = generateIdentifier(id1, id2, [], peer);
                 expect(compareIdentifier(id1, newId)).to.equal(-1);
                 expect(compareIdentifier(id2, newId)).to.equal(1);

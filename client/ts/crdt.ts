@@ -3,6 +3,7 @@ import { ClientInterface } from "./client";
 import { TextError } from "./error";
 import { generateIdentifier } from "./identifier";
 import { MessageType } from "./message";
+import { VersionVector } from "./version";
 
 enum Operation {
     Insert,
@@ -45,12 +46,14 @@ export interface Delta {
  * ```
  */
 export class CRDT {
-    public counter: number;
     public document: Char[][];
+    public buffer: Char[];
+    public version: VersionVector;
 
     public constructor(public uuid: string, public client: ClientInterface) {
-        this.counter = 0;
         this.document = [[]];
+        this.buffer = [];
+        this.version = new VersionVector(this.uuid);
     }
 
     /**
@@ -62,7 +65,6 @@ export class CRDT {
         if (delta.action !== "insert") {
             throw new TextError("input delta not an insert operation");
         }
-        this.counter++;
         const lines = this.parseLines(delta.lines.slice());
 
         // initialize indices
@@ -76,6 +78,8 @@ export class CRDT {
 
         lines.forEach(line => {
             Array.from(line).forEach(ch => {
+                this.version.updateLocalVersion();
+
                 const currentChar = this.generateChar(previousChar, nextChar, ch);
                 this.document[currentRow].splice(currentColumn, 0, currentChar);
                 inserted.push(currentChar);
@@ -115,7 +119,6 @@ export class CRDT {
         if (delta.action !== "remove") {
             throw new TextError("input delta not a delete operation");
         }
-        this.counter++;
         const lines = this.parseLines(delta.lines.slice());
 
         // initialize indices
@@ -176,6 +179,16 @@ export class CRDT {
         }
         // update local editor
         this.client.editor.editorInsert(index, ch.data);
+
+        // update version
+        this.version.updateRemoteVersion({
+            uuid: ch.uuid,
+            counter: ch.counter,
+            pending: []
+        });
+
+        // process delete buffer
+        this.processBuffer();
     }
 
     /**
@@ -184,6 +197,37 @@ export class CRDT {
      * @param ch - character to be deleted
      */
     public remoteDelete(ch: Char): void {
+        // push character to delete buffer
+        this.buffer.push(ch);
+
+        // process delete buffer
+        this.processBuffer();
+    }
+
+    /* Attempt to delete characters in buffer */
+    private processBuffer(): void {
+        const buffer = this.buffer.slice();
+        buffer.forEach(ch => {
+            if (
+                this.version.committed({
+                    uuid: ch.uuid,
+                    counter: ch.counter,
+                    pending: []
+                })
+            ) {
+                // remove character and delete
+                const index = this.buffer.indexOf(ch);
+                if (index === -1) {
+                    throw new TextError("character not in buffer");
+                }
+                this.buffer.splice(index, 1);
+                this.performRemoteDelete(ch);
+            }
+        });
+    }
+
+    /* Delete character from local CRDT */
+    private performRemoteDelete(ch: Char): void {
         const index = this.findPosition(ch, Operation.Delete);
         this.document[index.row].splice(index.column, 1);
         if (ch.data === "\n") {
@@ -313,7 +357,7 @@ export class CRDT {
             return this.document[index.row][index.column - 1];
         } else {
             if (index.row == 0) {
-                return { id: [], counter: 0, data: "" };
+                return { id: [], uuid: "", counter: 0, data: "" };
             } else {
                 return this.document[index.row - 1][this.document[index.row - 1].length - 1];
             }
@@ -324,7 +368,7 @@ export class CRDT {
     private findNextChar(index: Index): Char {
         const lineLength = this.document[index.row].length;
         if (index.column === lineLength) {
-            return { id: [], counter: 0, data: "" };
+            return { id: [], uuid: "", counter: 0, data: "" };
         } else {
             return this.document[index.row][index.column];
         }
@@ -333,6 +377,6 @@ export class CRDT {
     /* Generate character between `prevChar` and `nextChar` */
     private generateChar(prevChar: Char, nextChar: Char, data: string): Char {
         const id = generateIdentifier(prevChar.id, nextChar.id, [], this.uuid);
-        return { id: id, counter: this.counter, data: data };
+        return { id: id, uuid: this.uuid, counter: this.version.getLocalVersion().counter, data: data };
     }
 }
