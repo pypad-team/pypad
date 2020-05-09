@@ -21,3 +21,19 @@ export class PeerNotFoundError extends Error {
         Object.setPrototypeOf(this, PeerNotFoundError.prototype);
     }
 }
+
+/** Custom error to indicate a duplicate color used */
+export class DuplicateColorError extends Error {
+    constructor(message: string) {
+        super(message);
+        Object.setPrototypeOf(this, DuplicateColorError.prototype);
+    }
+}
+
+/** Custom error to indicate no color found */
+export class NoColorFoundError extends Error {
+    constructor(message: string) {
+        super(message);
+        Object.setPrototypeOf(this, NoColorFoundError.prototype);
+    }
+}

@@ -132,7 +132,7 @@ export class Editor implements EditorInterface {
                 const name = peerData.name === undefined ? "" : peerData.name;
                 cursor.elementID = this.editor.session.addMarker(
                     range,
-                    `remoteCursor-${peerData.color.r}-${peerData.color.g}-${peerData.color.b}-${name}-${cursorType}`,
+                    `remoteCursor-${peerData.color.h}-${peerData.color.s}-${peerData.color.l}-${name}-${cursorType}`,
                     "text",
                     true
                 );
@@ -155,12 +155,12 @@ export class Editor implements EditorInterface {
                     })[0];
                     const tokens = className.split("-");
                     // parse the class name to style the cursor
-                    const rgb = `${tokens[1]}, ${tokens[2]}, ${tokens[3]}`;
+                    const hsl = `${tokens[1]}, ${tokens[2]}%, ${tokens[3]}%`;
                     (cursorElement as HTMLElement).style.position = "absolute";
                     if (tokens[5] === (CursorType.Selection as string).toLowerCase()) {
-                        (cursorElement as HTMLElement).style.backgroundColor = `rgba(${rgb}, 0.2)`;
+                        (cursorElement as HTMLElement).style.backgroundColor = `hsla(${hsl}, 0.2)`;
                     } else {
-                        (cursorElement as HTMLElement).style.borderRight = `2px solid rgba(${rgb}, 0.5)`;
+                        (cursorElement as HTMLElement).style.borderRight = `2px solid hsla(${hsl}, 0.5)`;
                         (cursorElement as HTMLElement).style.borderRadius = "0";
                     }
                 });
