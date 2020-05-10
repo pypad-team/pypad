@@ -8,6 +8,7 @@ declare const ace: any; // eslint-disable-line @typescript-eslint/no-explicit-an
 
 /** Generic editor interface */
 export interface EditorInterface {
+    setText(text: string): void;
     editorInsert(index: Index, ch: string): void;
     editorDelete(startIndex: Index, endIndex: Index): void;
     [prop: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -32,7 +33,7 @@ export class Editor implements EditorInterface {
             theme: "ace/theme/nord_dark"
         });
         // TODO customize editor
-        this.editor.setFontSize("16px");
+        this.editor.setFontSize("14px");
         this.editor.setShowPrintMargin(false);
 
         this.enabled = false;
@@ -70,6 +71,7 @@ export class Editor implements EditorInterface {
      */
     public setText(text: string): void {
         this.editor.setValue(text);
+        this.editor.clearSelection();
     }
 
     /**
@@ -137,7 +139,7 @@ export class Editor implements EditorInterface {
                     true
                 );
             } catch (PeerNotFoundError) {
-                // Skip adding peer cursor if peer data is not found
+                // do not add peer cursor if peer data is not found
                 return;
             }
         });
@@ -173,24 +175,24 @@ export class Editor implements EditorInterface {
     public enable(): void {
         this.editor.setReadOnly(false);
         this.enabled = true;
-        const linkButton = document.getElementById("link") as HTMLButtonElement;
-        const statusDot = document.getElementById("status-dot");
-        const statusText = document.getElementById("status-text");
-        linkButton!.disabled = false;
-        statusDot!.style.backgroundColor = "green";
-        statusText!.innerHTML = "Connected";
+        const linkButton = document.getElementById("link")! as HTMLButtonElement;
+        const statusDot = document.getElementById("status-dot")!;
+        const statusText = document.getElementById("status-text")!;
+        linkButton.disabled = false;
+        statusDot.style.backgroundColor = "var(--nord-green)";
+        statusText.innerHTML = "Connected";
     }
 
     /** Disable the editor  */
     public disable(): void {
         this.editor.setReadOnly(true);
         this.enabled = false;
-        const linkButton = document.getElementById("link") as HTMLButtonElement;
-        const statusDot = document.getElementById("status-dot");
-        const statusText = document.getElementById("status-text");
-        linkButton!.disabled = true;
-        statusDot!.style.backgroundColor = "red";
-        statusText!.innerHTML = "Reconnecting";
+        const linkButton = document.getElementById("link")! as HTMLButtonElement;
+        const statusDot = document.getElementById("status-dot")!;
+        const statusText = document.getElementById("status-text")!;
+        linkButton.disabled = true;
+        statusDot.style.backgroundColor = "var(--nord-red)";
+        statusText.innerHTML = "Reconnecting";
     }
 
     /* Listen for local changes in editor to update CRDT */

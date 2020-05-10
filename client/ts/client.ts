@@ -1,6 +1,7 @@
 import { v4 as uuid } from "uuid";
 
 import { Connection, ConnectionInterface } from "./connection";
+import { Console } from "./console";
 import { CRDT } from "./crdt";
 import { Editor, EditorInterface } from "./editor";
 import { ConnectionError } from "./error";
@@ -26,6 +27,7 @@ export class Client implements ClientInterface {
     public uuid: string;
     public editor: EditorInterface;
     public connection: ConnectionInterface;
+    public console: Console;
     public crdt: CRDT;
     public name?: string;
 
@@ -33,7 +35,11 @@ export class Client implements ClientInterface {
         this.uuid = uuid();
         this.editor = new Editor(this);
         this.connection = new Connection(this.getHostID(), this);
+        this.console = new Console(this);
         this.crdt = new CRDT(this.uuid, this);
+
+        //
+        this.initHandlers();
     }
 
     /**
@@ -64,11 +70,13 @@ export class Client implements ClientInterface {
 
     /**
      * Add a peer to the peers list display
+     *
      * @param dotColor - color of the peer's dot in the display
      * @param name - name of the peer to display
      * @param peerID - ID of the peer to add
      */
     public addPeerDisplay(dotColor: Color, name: string, peerID: string): void {
+        // TODO cleanup (?)
         const peersElement = document.getElementById("peer-list");
         const peerElement = document.createElement("div");
         const dotElement = document.createElement("span");
@@ -86,6 +94,7 @@ export class Client implements ClientInterface {
 
     /**
      * Remove a peer from the peers list display
+     *
      * @param peerID - ID of the peer to remove
      */
     public removePeerDisplay(peerID: string): void {
@@ -95,6 +104,7 @@ export class Client implements ClientInterface {
 
     /**
      * Update the display of a peer in the peers list
+     *
      * @param peerID - ID of the peer to update
      * @param name - name of the peer to display
      * @param dotColor - color of the peer's dot in the display
@@ -110,8 +120,36 @@ export class Client implements ClientInterface {
         }
     }
 
-    /** Get host ID string from URL */
+    /* Get host ID string from URL */
     private getHostID(): string {
         return location.search === "" ? "" : location.search.slice(1);
+    }
+
+    /* ... */
+    private initHandlers(): void {
+        // run button
+        const runButton = document.getElementById("run")!;
+        runButton.addEventListener("click", () => {
+            this.console.run();
+        });
+        // link button
+        const linkButton = document.getElementById("link")!;
+        linkButton.addEventListener("click", () => {
+            this.getConnectionLink();
+        });
+        // reset button
+        const resetButton = document.getElementById("reset")!;
+        resetButton.addEventListener("click", () => {
+            this.console.reset();
+        });
+        // submission button
+        const input = document.getElementById("name-input");
+        input!.addEventListener("submit", (e: Event) => {
+            e.preventDefault();
+            const nameElement = document.getElementById("name") as HTMLInputElement;
+            const start = document.getElementById("start")!;
+            this.setName(nameElement!.value);
+            start.remove();
+        });
     }
 }

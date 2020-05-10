@@ -37,6 +37,12 @@ export class TestConnection implements ConnectionInterface {
  * Test editor class.
  */
 export class TestEditor implements EditorInterface {
+    public setText(text: string): void {
+        if (DEBUG) {
+            console.log("text: ", text);
+        }
+    }
+
     public editorInsert(index: Index, ch: string): void {
         if (DEBUG) {
             console.log("index: ", index, " ch: ", ch);

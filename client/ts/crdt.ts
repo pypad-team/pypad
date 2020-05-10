@@ -238,6 +238,7 @@ export class CRDT {
                 index.column += 1;
             }
         });
+        this.client.editor.setText(initText);
     }
 
     /**
