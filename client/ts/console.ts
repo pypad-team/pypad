@@ -10,6 +10,11 @@ const PROMPT = ">>>";
 /** Environment loaded text */
 const ENV_TEXT = "Python 3.7.0 environment loaded.";
 
+/* Color variables */
+const TEXT = "var(--text)";
+const GREEN = "var(--nord-green)";
+const BLUE = "var(--nord-blue)";
+
 /**
  * Python console representation.
  *
@@ -29,7 +34,7 @@ export class Console {
             `);
 
             this.updateEnvironment();
-            this.updateConsole(PROMPT);
+            this.updateConsole(PROMPT, GREEN);
             runButton.disabled = false;
         });
     }
@@ -39,21 +44,24 @@ export class Console {
         const input = this.client.editor.editor.getValue();
 
         try {
+            const timeStart = performance.now();
             pyodide.runPython(`
                 sys.stdout = io.StringIO()
                 sys.stderr = io.StringIO()
             `);
             pyodide.runPython(input);
+            const timeEnd = performance.now();
 
             const stdout = pyodide.runPython("sys.stdout.getvalue()");
             const stderr = pyodide.runPython("sys.stderr.getvalue()");
-            this.updateConsole(stdout);
-            this.updateConsole(stderr);
+            this.updateConsole(`Execution in ${(timeEnd - timeStart).toFixed(2)} ms`, BLUE);
+            this.updateConsole(stdout, TEXT);
+            this.updateConsole(stderr, TEXT);
         } catch (error) {
             const errorText = error.toString();
-            this.updateConsole(errorText);
+            this.updateConsole(errorText, TEXT);
         }
-        this.updateConsole(PROMPT);
+        this.updateConsole(PROMPT, GREEN);
     }
 
     /** Remove output from the console */
@@ -61,7 +69,7 @@ export class Console {
         document.querySelectorAll(".console-text").forEach(elem => {
             elem.remove();
         });
-        this.updateConsole(PROMPT);
+        this.updateConsole(PROMPT, GREEN);
     }
 
     /* Update environment information upon load */
@@ -72,11 +80,12 @@ export class Console {
     }
 
     /* Add `text` to console output */
-    private updateConsole(text: string): void {
+    private updateConsole(text: string, color: string): void {
         const consoleContainer = document.getElementById("console")!;
         const consoleText = document.createElement("pre");
 
         consoleText.innerHTML = `<code>${text}</code>`;
+        consoleText.style.color = color;
         consoleText.className = "console-text";
 
         consoleContainer.appendChild(consoleText);

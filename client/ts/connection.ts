@@ -1,5 +1,5 @@
 import { ClientInterface } from "./client";
-import { generateColor } from "./color";
+import { generatePeerColor } from "./color";
 import { ConnectionError, PeerNotFoundError } from "./error";
 import { MessageInterface, MessageType } from "./message";
 import { PeerData } from "./peer";
@@ -195,7 +195,7 @@ export class Connection implements ConnectionInterface {
                 );
                 break;
             case MessageType.Join: {
-                const color = generateColor();
+                const color = generatePeerColor(this.peers);
                 this.peers.set(msg.id, {
                     id: msg.id,
                     name: msg.name,
@@ -216,7 +216,7 @@ export class Connection implements ConnectionInterface {
                 const existingPeer = this.peers.get(msg.id);
                 // Update display to show user
                 if (existingPeer === undefined) {
-                    const color = generateColor();
+                    const color = generatePeerColor(this.peers);
                     this.peers.set(msg.id, {
                         id: msg.id,
                         name: msg.name,

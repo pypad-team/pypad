@@ -2,11 +2,12 @@ import { v4 as uuid } from "uuid";
 
 import { Connection, ConnectionInterface } from "./connection";
 import { Console } from "./console";
+import { Color } from "./color";
 import { CRDT } from "./crdt";
 import { Editor, EditorInterface } from "./editor";
 import { ConnectionError } from "./error";
 import { MessageType } from "./message";
-import { Color } from "./color";
+import { generateName } from "./names";
 
 /** Generic client interface */
 export interface ClientInterface {
@@ -29,7 +30,7 @@ export class Client implements ClientInterface {
     public connection: ConnectionInterface;
     public console: Console;
     public crdt: CRDT;
-    public name?: string;
+    public name: string;
 
     public constructor() {
         this.uuid = uuid();
@@ -37,9 +38,9 @@ export class Client implements ClientInterface {
         this.connection = new Connection(this.getHostID(), this);
         this.console = new Console(this);
         this.crdt = new CRDT(this.uuid, this);
-
-        //
+        this.name = generateName();
         this.initHandlers();
+        this.addPeerDisplay({ h: 220, s: 28, l: 88 }, this.name, this.uuid);
     }
 
     /**
@@ -56,6 +57,7 @@ export class Client implements ClientInterface {
                 name: this.name
             });
         }
+        this.updatePeerDisplay(this.uuid, name);
     }
 
     /** Get connection link to connect to peer network */
@@ -85,7 +87,7 @@ export class Client implements ClientInterface {
         peerElement.classList.add("peer");
         dotElement.classList.add("peer-dot");
         nameElement.classList.add("peer-name");
-        dotElement.style.backgroundColor = `rgb(${dotColor.r}, ${dotColor.g}, ${dotColor.b})`;
+        dotElement.style.backgroundColor = `hsl(${dotColor.h}, ${dotColor.s}%, ${dotColor.l}%)`;
         nameElement.innerHTML = name;
         peerElement.appendChild(dotElement);
         peerElement.appendChild(nameElement);
@@ -116,7 +118,7 @@ export class Client implements ClientInterface {
         }
         if (dotColor !== undefined) {
             (peerElement!
-                .children[0] as HTMLElement)!.style.backgroundColor = `rgb(${dotColor.r}, ${dotColor.g}, ${dotColor.b})`;
+                .children[0] as HTMLElement)!.style.backgroundColor = `hsl(${dotColor.h}, ${dotColor.s}%, ${dotColor.l}%)`;
         }
     }
 

@@ -8,9 +8,14 @@
 
     <body>
         <div class="start" id="start">
-            <form id="name-input" onsubmit="return false">
-                <input type="input" class="form-field" placeholder="name" id="name" required />
-            </form>
+            <div class="start-text">
+                <h2 class="title">Welcome to PyPad</h2>
+                <p class="subtitle">PyPad is a distributed, peer-to-peer collaborative code editor. Input your name to get started!</p>
+                <form id="name-input" onsubmit="return false">
+                    <input type="input" class="form-field" placeholder="Ben Bitdiddle" id="name" required /><button class="btn form">Go</button>
+                </form>
+                <p class="subtitle">Check out the <a href="https://github.com/pypad-team/pypad/">source code</a>!</p>
+            </div>
         </div>
 
         <main>
