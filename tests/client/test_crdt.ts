@@ -2,7 +2,7 @@ import "mocha";
 import { expect } from "chai";
 
 import { Char } from "../../client/ts/char";
-import { TestClient } from "./util";
+import { TestClient, TestNetwork } from "./util";
 
 function toText(document: Char[][]): string[] {
     return document.map(str => {
@@ -77,6 +77,18 @@ describe("crdt", () => {
             client.crdt.localInsert(delta2);
             const document = toText(client.crdt.document);
             expect(document).to.deep.equal(["aabb\n", "bbaa"]);
+        });
+        it("supports 100 random inserts", () => {
+            const net = new TestNetwork(1);
+            for (let i = 0; i < 100; i++) {
+                net.randomInsertDelete(1.0);
+            }
+        });
+        it("supports 10000 random inserts", () => {
+            const net = new TestNetwork(1);
+            for (let i = 0; i < 10000; i++) {
+                net.randomInsertDelete(1.0);
+            }
         });
     });
     describe("localDelete", () => {
@@ -207,6 +219,18 @@ describe("crdt", () => {
             client.crdt.localDelete(deltaDelete2);
             const document = toText(client.crdt.document);
             expect(document).to.deep.equal([""]);
+        });
+        it("supports 100 random inserts and deletes", () => {
+            const net = new TestNetwork(1);
+            for (let i = 0; i < 100; i++) {
+                net.randomInsertDelete(0.5);
+            }
+        });
+        it("supports 10000 random inserts and deletes", () => {
+            const net = new TestNetwork(1);
+            for (let i = 0; i < 10000; i++) {
+                net.randomInsertDelete(0.5);
+            }
         });
     });
     describe("remoteInsert", () => {

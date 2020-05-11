@@ -23,7 +23,8 @@ jobs:
       - name: Test changes
         run: |
           npm install
-          npm test
+          npm test:client
+          npm test:server
     
   build:
     needs: [test]

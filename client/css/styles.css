@@ -220,6 +220,7 @@ footer {
 .tooltip {
     display: inline-block;
     position: relative;
+    z-index: 10;
 }
 
 .tooltip .tooltip-text {
@@ -295,7 +296,7 @@ footer {
     position: absolute;
     top: 0;
     width: 100%;
-    z-index: 10;
+    z-index: 20;
     display: flex;
     align-items: center;
 }
