@@ -2,72 +2,72 @@
 <html lang="en">
 
 <head>
-	<title>PyPad</title>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<meta name="description" content="PyPad is a distributed, peer-to-peer, collaborative python code editor." />
-	<meta name="theme-color" content="#434C5E" />
+    <title>PyPad</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="PyPad is a distributed, peer-to-peer, collaborative python code editor." />
+    <meta name="theme-color" content="#434C5E" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" />
-	<link rel="stylesheet" type="text/css" href="/css/styles.css" />
-	<!-- Analytics -->
-	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-165917221-1"></script>
-	<script>
-	    window.dataLayer = window.dataLayer || [];
-	    function gtag(){dataLayer.push(arguments);}
-	    gtag('js', new Date());
+    <link rel="stylesheet" type="text/css" href="/css/styles.css" />
+    <!-- Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-165917221-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
 
-	    gtag('config', 'UA-165917221-1');
-	</script>
+        gtag('config', 'UA-165917221-1');
+    </script>
 </head>
 
 <body>
-	<div class="start" id="start">
-		<div class="start-text">
-			<h2 class="title">Welcome to PyPad</h2>
-			<p class="subtitle">PyPad is a distributed, peer-to-peer, collaborative code editor. Input your name to start!</p>
-			<form id="name-input" onsubmit="return false">
-				<input type="input" class="form-field" placeholder="Ben Bitdiddle" id="name" required /><button class="btn form">Go</button>
-			</form>
-			<p class="subtitle">Check out the <a href="https://github.com/pypad-team/pypad/">source code</a>!</p>
-		</div>
-	</div>
-	<main>
-		<div id="split-left" class="split">
-			<div id="status"> <span id="status-dot"></span>
-				<span id="status-text"></span>
-			</div>
-			<div id="editor"></div>
-		</div>
-		<div id="split-right" class="split">
-			<button id="run" class="btn run">Run</button>
-			<div id="console">
-				<div id="load" class="load-animation">Python 3.7.0 environment loading</div>
-			</div>
-		</div>
-	</main>
-	<footer>
-		<div class="footer-left">
-			<button id="link" class="btn tooltip">Link 
+    <div class="start" id="start">
+        <div class="start-text">
+            <h2 class="title">Welcome to PyPad</h2>
+            <p class="subtitle">PyPad is a distributed, peer-to-peer, collaborative code editor. Input your name to start!</p>
+            <form id="name-input" onsubmit="return false">
+                <input type="input" class="form-field" placeholder="Ben Bitdiddle" id="name" required /><button class="btn form">Go</button>
+            </form>
+            <p class="subtitle">Check out the <a href="https://github.com/pypad-team/pypad/">source code</a>!</p>
+        </div>
+    </div>
+    <main>
+        <div id="split-left" class="split">
+            <div id="status"> <span id="status-dot"></span>
+                <span id="status-text"></span>
+            </div>
+            <div id="editor"></div>
+        </div>
+        <div id="split-right" class="split">
+            <button id="run" class="btn run">Run</button>
+            <div id="console">
+                <div id="load" class="load-animation">Python 3.7.0 environment loading</div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="footer-left">
+            <button id="link" class="btn tooltip">Link 
                 <span class="tooltip-text left">
                     Copy sharing link to start collaborative editing session.
                 </span>
-			</button>
-			<div id="peer-list"></div>
-		</div>
-		<div class="footer-right">
-			<button id="reset" class="btn tooltip">Reset
+            </button>
+            <div id="peer-list"></div>
+        </div>
+        <div class="footer-right">
+            <button id="reset" class="btn tooltip">Reset
                 <span class="tooltip-text right">
                     Reset execution output from the console.
                 </span>
-			</button>
-		</div>
-	</footer>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.js" crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/0.3.20/peer.min.js" crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.5.11/split.min.js" crossorigin="anonymous"></script>
-	<script src="https://pyodide.cdn.iodide.io/pyodide.js" crossorigin="anonymous"></script>
-	<script src="/js/bundle.js" type="text/javascript" charset="utf-8"></script>
-	<script>Split(["#split-left", "#split-right"], { sizes: [50, 50] });</script>
+            </button>
+        </div>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/0.3.20/peer.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.5.11/split.min.js" crossorigin="anonymous"></script>
+    <script src="https://pyodide.cdn.iodide.io/pyodide.js" crossorigin="anonymous"></script>
+    <script src="/js/bundle.js" type="text/javascript" charset="utf-8"></script>
+    <script>Split(["#split-left", "#split-right"], { sizes: [50, 50] });</script>
 </body>
 
 </html>
