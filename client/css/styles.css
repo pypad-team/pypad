@@ -2,6 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
 
+/* nord colorscheme */
 :root {
     --text: #eceff4;
     --bg-color: #2e3440;
@@ -11,10 +12,15 @@
     --nord-red: #bf616a;
 }
 
+body {
+    background-color: var(--bg-color);
+}
+
 main {
     height: calc(100vh - 50px);
 }
 
+/* connection status */
 #status {
     align-items: center;
     color: var(--text);
@@ -38,21 +44,7 @@ main {
     margin-left: 6px;
 }
 
-#editor {
-    font-family: 'Roboto Mono', monospace;
-    height: calc(100% - 35px);
-}
-
-#console {
-    color: var(--text);
-    font-family: 'Roboto Mono', monospace;
-    font-size: 14px;
-    height: calc(100% - 76px);
-    margin-top: 35px;
-    overflow: auto;
-    padding: 0px 25px;
-}
-
+/* customize scroll */
 ::-webkit-scrollbar {
     width: 10px;
 }
@@ -63,6 +55,31 @@ main {
 
 ::-webkit-scrollbar-thumb {
     background: #3b4252;
+}
+
+/* editor panel */
+#editor {
+    font-family: 'Roboto Mono', monospace;
+    height: calc(100% - 35px);
+}
+
+.ace_editor {
+    background: var(--bg-color);
+}
+
+.ace_gutter-layer {
+    background: var(--bg-color);
+}
+
+/* console panel */
+#console {
+    color: var(--text);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    height: calc(100% - 76px);
+    margin-top: 35px;
+    overflow: auto;
+    padding: 0px 25px;
 }
 
 .console-text {
@@ -103,6 +120,7 @@ main {
     width: 100%;
 }
 
+/* footer panel */
 footer {
     align-items: center;
     background-color: var(--fg-color);
@@ -120,10 +138,11 @@ footer {
     margin-right: 20px;
 }
 
+/* peer status */
 .peer {
     display: inline-block;
     margin-left: 20px;
-    padding-top: 2.5px;
+    padding-top: 5px;
 }
 
 .peer-dot {
@@ -140,6 +159,7 @@ footer {
     margin-left: 5px;
 }
 
+/* customize buttons */
 .btn {
     background-color: var(--fg-color);
     border: 1px solid #5e6b6b;
@@ -155,8 +175,8 @@ footer {
 }
 
 .btn.run {
-    background-color: var(--nord-green);
-    border: 1px solid var(--nord-green);
+    background-color: #9fb78a;
+    border: 1px solid #9fb78a;
     margin-left: 22.5px;
     margin-top: 15px;
     padding: 4px 16px;
@@ -165,8 +185,8 @@ footer {
 .btn.form {
     display: inline-block;
     vertical-align: bottom;
-    background-color: var(--nord-green);
-    border: 1px solid var(--nord-green);
+    background-color: #9fb78a;
+    border: 1px solid #9fb78a;
     height: 38px;
     padding: 8px 14px;
     border-top-left-radius: 0;
@@ -196,6 +216,7 @@ footer {
     cursor: pointer;
 }
 
+/* on-hover tooltips */
 .tooltip {
     display: inline-block;
     position: relative;
@@ -248,6 +269,7 @@ footer {
     visibility: visible;
 }
 
+/* resizable panels */
 .split {
     background-color: var(--bg-color);
     box-sizing: border-box;
@@ -263,6 +285,8 @@ footer {
 .gutter {
     background-color: var(--fg-color);
 }
+
+/* initial load screen */
 .start {
     backdrop-filter: blur(5px);
     background-color: rgba(0, 0, 0, 0.6);

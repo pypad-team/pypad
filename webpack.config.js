@@ -1,14 +1,16 @@
 const path = require('path');
 const webpack = require('webpack');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 const config = function(env) {
     return {
         mode: env.production? 'production' : 'development',
-        devtool: "inline-source-map",
-        entry: './client/ts/index.ts',
+        entry: ['./client/ts/index.ts', './client/css/styles.css'],
         output: {
-            path: path.resolve(__dirname, 'build/client/js/'),
-            filename: 'bundle.js',
+            path: path.resolve(__dirname, 'build/client/'),
+            filename: 'js/bundle.js',
         },
         module: {
             rules: [
@@ -27,6 +29,13 @@ const config = function(env) {
                     ],
                     exclude: /node_modules/,
                 },
+                {
+                    test: /\.css?$/,
+                    use: [
+                        MiniCssExtractPlugin.loader,
+                        "css-loader",
+                    ],
+                },
             ],
         },
         resolve: {
@@ -36,6 +45,27 @@ const config = function(env) {
                 '.tsx',
             ]
         },
+        optimization: {
+            minimizer: [
+                new OptimizeCssAssetsPlugin({
+                    cssProcessorPluginOptions: {
+                        preset: ['default', { discardComments: { removeAll: true }, }],
+                    },
+                }),
+            ],
+        },
+        plugins: [
+            new UglifyJsPlugin({
+                uglifyOptions: {
+                    output: {
+                        comments: false,
+                    },
+                },
+            }),
+            new MiniCssExtractPlugin({
+                filename: 'css/styles.css',
+            }),
+        ],
     }
 }
 

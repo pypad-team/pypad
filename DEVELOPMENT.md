@@ -1,5 +1,5 @@
 # Development
-This will discuss the workflow of developing collabd.
+This will discuss the workflow of developing PyPad.
 
 ## Project Structure
 `client`: This directory hosts all the files for the client. This includes all the views, styles, and CRDT logic.
@@ -14,10 +14,10 @@ The server is usually run by compiling the `.ts` files to `.js` and creating a `
 The server can also be run on dev mode to find live updates in the `.ts` files. This will run a server directly from the `client` and `server` directories. This can be done by running `npm run dev` and `npm start` separately.
 
 ## Formatting
-collabd uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) to format the code. Linting the `client`, `server`, and `tests` directory files can be done by running `npm run lint`. This is automatically run every time the files are built and the server is run.
+PyPad uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) to lint and format the code. Linting the `client`, `server`, and `tests` directory files can be done by running `npm run lint`. This is automatically run every time the files are built and the server is run.
 
 ## Tests
-collabd uses [mocha](https://mochajs.org/), [chai](https://www.chaijs.com/), and [sinon](https://sinonjs.org/) to test the code. This allows for testing with assertions and mocks. All the tests written for the server and client are stored in the `tests` directory. Running tests manually can be done by running `npm run test-client` for client tests, `npm run test-server` for server tests, and `npm run test` to run all tests. This is automatically run when running the production server.
+PyPad uses [mocha](https://mochajs.org/), [chai](https://www.chaijs.com/), and [sinon](https://sinonjs.org/) to test the code. This allows for testing with assertions and mocks. All the tests written for the server and client are stored in the `tests` directory. Running tests manually can be done by running `npm run test-client` for client tests, `npm run test-server` for server tests, and `npm run test` to run all tests.
 
 ## Contributing
 Please test and lint the code before each commit. To maintain this workflow, please write proper tests for any new or modified functions in the corresponding test directories.
