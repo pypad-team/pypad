@@ -23,6 +23,7 @@ jobs:
       - name: Test changes
         run: |
           npm install
+          npm run lint
           npm run test:client
           npm run test:server
     

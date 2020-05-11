@@ -25,6 +25,7 @@ export class Editor implements EditorInterface {
     private editor: any;
     private enabled: boolean;
     private remoteCursors: Map<string, Cursor>;
+    private bindingIndex: number;
 
     constructor(client: ClientInterface, elementID = "editor") {
         this.client = client;
@@ -32,9 +33,9 @@ export class Editor implements EditorInterface {
             mode: "ace/mode/python",
             theme: "ace/theme/nord_dark"
         });
-        // TODO customize editor
         this.editor.setFontSize("14px");
         this.editor.setShowPrintMargin(false);
+        this.bindingIndex = 0;
 
         this.enabled = false;
         this.remoteCursors = new Map<string, Cursor>();
@@ -193,6 +194,16 @@ export class Editor implements EditorInterface {
         linkButton.disabled = true;
         statusDot.style.backgroundColor = "var(--nord-red)";
         statusText.innerHTML = "Reconnecting";
+    }
+
+    /** Update keybindings */
+    public updateBindings(): void {
+        const bindingNames = ["Normal", "Vim", "Emacs"];
+        const bindingResources = ["", "ace/keyboard/vim", "ace/keyboard/emacs"];
+        this.bindingIndex = (this.bindingIndex + 1) % 3;
+        this.editor.setKeyboardHandler(bindingResources[this.bindingIndex]);
+        const bindingsButton = document.getElementById("bindings")!;
+        bindingsButton.childNodes[0].nodeValue = bindingNames[this.bindingIndex];
     }
 
     /* Listen for local changes in editor to update CRDT */

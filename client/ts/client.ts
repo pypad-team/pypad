@@ -32,6 +32,8 @@ export class Client implements ClientInterface {
     public crdt: CRDT;
     public name: string;
 
+    private bindingsIndex;
+
     public constructor() {
         this.uuid = uuid();
         this.editor = new Editor(this);
@@ -41,6 +43,8 @@ export class Client implements ClientInterface {
         this.name = generateName();
         this.initHandlers();
         this.addPeerDisplay({ h: 220, s: 28, l: 88 }, this.name, this.uuid);
+
+        this.bindingsIndex = 0;
     }
 
     /**
@@ -127,7 +131,7 @@ export class Client implements ClientInterface {
         return location.search === "" ? "" : location.search.slice(1);
     }
 
-    /* ... */
+    /* Initialize interactive elements */
     private initHandlers(): void {
         // run button
         const runButton = document.getElementById("run")!;
@@ -138,6 +142,11 @@ export class Client implements ClientInterface {
         const linkButton = document.getElementById("link")!;
         linkButton.addEventListener("click", () => {
             this.getConnectionLink();
+        });
+        // bindings button
+        const bindingsButton = document.getElementById("bindings")!;
+        bindingsButton.addEventListener("click", () => {
+            this.editor.updateBindings();
         });
         // reset button
         const resetButton = document.getElementById("reset")!;

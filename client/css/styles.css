@@ -193,6 +193,12 @@ footer {
     border-bottom-left-radius: 0;
 }
 
+.btn.bindings {
+    cursor: pointer;
+    margin-right: 15px;
+    width: 95px;
+}
+
 #run {
     cursor: pointer;
 }
@@ -248,6 +254,10 @@ footer {
     right: -20%;
 }
 
+.tooltip .tooltip-text.center {
+    left: -50%;
+}
+
 .tooltip .tooltip-text::after {
     border-color: #466080 transparent transparent transparent;
     border-style: solid;
@@ -263,6 +273,10 @@ footer {
 
 .tooltip .tooltip-text.right:after {
     right: 25%;
+}
+
+.tooltip .tooltip-text.center:after {
+    left: 50%;
 }
 
 .tooltip:hover .tooltip-text {
