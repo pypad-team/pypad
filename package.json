@@ -21,7 +21,7 @@
     "build:docs": "typedoc --out ./docs/ ./client/ts/ ./server/",
     "predev": "rm -rf ./build && mkdir ./build && mkdir ./build/client",
     "dev": "npm run dev:client & npm run dev:server",
-    "dev:client": "ln ./client/index.html ./build/client/index.html && webpack --env.development --watch",
+    "dev:client": "ln ./client/index.html ./build/client/index.html && cp ./client/favicon.ico ./build/client/ && webpack --env.development --watch",
     "dev:server": "tsc --build --watch",
     "lint": "eslint --fix --ext .ts ./server/ ./client/ ./tests/",
     "start": "node ./build/server/index.js",

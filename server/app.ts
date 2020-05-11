@@ -36,6 +36,10 @@ class App {
             res.sendFile("index.html", { root: path.join(__dirname, "../client") });
         });
 
+        router.get("/favicon.ico", (req: express.Request, res: express.Response) => {
+            res.sendFile("favicon.ico", { root: path.join(__dirname, "../client") });
+        });
+
         this.app.use("/", router);
         this.app.use("/css", express.static(path.join(__dirname, "../client/css")));
         this.app.use("/js", express.static(path.join(__dirname, "../client/js")));
