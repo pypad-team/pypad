@@ -263,7 +263,7 @@ export class Connection implements ConnectionInterface {
             this.serverConnection = Peer(existingID, {
                 config: {
                     iceServers: [
-                        { url: "stun.l.google.com:19302" },
+                        { url: "stun:stun.l.google.com:19302" },
                         {
                             url: "turn:192.158.29.39:3478?transport=tcp",
                             credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
@@ -290,7 +290,10 @@ export class Connection implements ConnectionInterface {
             // disconnect from server upon error
             this.serverConnection.on(
                 "error",
-                ((): void => {
+                ((error: Error): void => {
+                    if (error.message.match(/ID `.*` is taken/g)) {
+                        this.id = "";
+                    }
                     this.serverConnection.disconnect();
                 }).bind(this)
             );
