@@ -1,22 +1,22 @@
 {
-  "name": "collabd",
+  "name": "pypad",
   "version": "1.0.0",
   "description": "A distributed, peer-to-peer solution for collaborative text editing.",
-  "homepage": "https://github.com/collabd/collabd#readme",
+  "homepage": "https://github.com/pypad-team/pypad#readme",
   "bugs": {
-    "url": "https://github.com/collabd/collabd/issues"
+    "url": "https://github.com/pypad-team/pypad/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/collabd/collabd.git"
+    "url": "git+https://github.com/pypad-team/pypad.git"
   },
   "license": "MIT",
-  "author": "collabd",
+  "author": "PyPad",
   "main": "index.js",
   "scripts": {
     "prebuild": "rm -rf ./build/",
     "build": "npm run build:client; npm run build:server",
-    "build:client": "webpack --env.production && cp ./client/index.html ./build/client/",
+    "build:client": "webpack --env.production && cp ./client/index.html ./build/client/ && cp ./client/favicon.ico ./build/client/",
     "build:server": "tsc --build",
     "build:docs": "typedoc --out ./docs/ ./client/ts/ ./server/",
     "predev": "rm -rf ./build && mkdir ./build && mkdir ./build/client",
@@ -30,7 +30,8 @@
     "test:server": "mocha -r ts-node/register ./tests/server/*.ts"
   },
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "peer": "^0.5.3"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",

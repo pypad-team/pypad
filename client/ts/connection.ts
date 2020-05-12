@@ -31,13 +31,12 @@ export class Connection implements ConnectionInterface {
     private connectedToHost: boolean;
     private attemptingReconnect: boolean;
 
-    private turnServerConnection?: any;
+    private serverConnection?: any;
     private peerConnections: Map<string, any>;
     private peers: Map<string, PeerData>;
 
     constructor(hostID: string, client: ClientInterface) {
         this.hostID = hostID;
-        this.id = "";
         this.client = client;
 
         this.isHost = hostID === "";
@@ -47,6 +46,18 @@ export class Connection implements ConnectionInterface {
 
         this.peerConnections = new Map<string, any>();
         this.peers = new Map<string, PeerData>();
+
+        // Get the cached ID if host
+        if (this.isHost) {
+            const cachedID = window.localStorage.getItem("peerid");
+            if (cachedID === null) {
+                this.id = "";
+            } else {
+                this.id = cachedID;
+            }
+        } else {
+            this.id = "";
+        }
         this.connectToNetwork();
     }
 
@@ -242,51 +253,60 @@ export class Connection implements ConnectionInterface {
         if (this.isConnectionLive()) {
             throw new ConnectionError("connected to network");
         }
-        // create new connection to TURN server if no live connection exists
-        if (this.turnServerConnection === undefined || this.turnServerConnection.destroyed) {
-            this.turnServerConnection = Peer();
-            this.turnServerConnection.on(
+        // create new connection to server if no live connection exists
+        if (
+            this.serverConnection === undefined ||
+            this.serverConnection.destroyed ||
+            this.serverConnection.disconnected
+        ) {
+            const existingID = this.id === "" ? undefined : this.id;
+            this.serverConnection = Peer(existingID);
+            this.serverConnection.on(
                 "open",
                 ((id: string): void => {
                     if (this.connectedToHost) {
+                        this.attemptingReconnect = false;
                         this.client.editor.enable();
                     }
                     this.connectedToServer = true;
                     this.id = id;
+                    // Cache ID if host
+                    if (this.isHost) {
+                        window.localStorage.setItem("peerid", id);
+                    }
                 }).bind(this)
             );
-            // disconnect from TURN server upon error
-            this.turnServerConnection.on(
+            // disconnect from server upon error
+            this.serverConnection.on(
                 "error",
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                ((error: Error): void => {
-                    this.turnServerConnection.disconnect();
+                ((): void => {
+                    this.serverConnection.disconnect();
                 }).bind(this)
             );
             // reset the ID and disconnect upon connection close
-            this.turnServerConnection.on(
+            this.serverConnection.on(
                 "close",
                 ((): void => {
-                    this.id = "";
+                    if (!this.isHost) {
+                        this.id = "";
+                    }
                     this.connectedToServer = false;
                     this.handleDisconnect();
                 }).bind(this)
             );
-            this.turnServerConnection.on(
+            this.serverConnection.on(
                 "disconnected",
                 ((): void => {
                     this.connectedToServer = false;
                     this.handleDisconnect();
                 }).bind(this)
             );
-            this.turnServerConnection.on("connection", this.acceptConnections.bind(this));
-        } else if (this.turnServerConnection.disconnected) {
-            this.turnServerConnection.reconnect();
+            this.serverConnection.on("connection", this.acceptConnections.bind(this));
         }
 
         if (!this.isHost) {
             // create reliable connection channel to host if connection is not host
-            const hostConnection = this.turnServerConnection.connect(this.hostID, {
+            const hostConnection = this.serverConnection.connect(this.hostID, {
                 reliable: true
             });
             this.peerConnections.set(this.hostID, hostConnection);
@@ -294,8 +314,7 @@ export class Connection implements ConnectionInterface {
             // disconnect from host upon error
             hostConnection.on(
                 "error",
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                ((error: Error): void => {
+                ((): void => {
                     hostConnection.close();
                 }).bind(this)
             );
@@ -303,13 +322,16 @@ export class Connection implements ConnectionInterface {
                 "close",
                 ((): void => {
                     this.connectedToHost = false;
-                    this.handleDisconnect();
+                    if (!this.attemptingReconnect) {
+                        this.handleDisconnect();
+                    }
                 }).bind(this)
             );
             hostConnection.on(
                 "open",
                 ((): void => {
                     if (this.connectedToServer) {
+                        this.attemptingReconnect = false;
                         this.client.editor.enable();
                     }
                     this.connectedToHost = true;
@@ -318,6 +340,7 @@ export class Connection implements ConnectionInterface {
         } else {
             this.connectedToHost = true;
         }
+        this.attemptingReconnect = false;
     }
 
     /**
@@ -329,16 +352,17 @@ export class Connection implements ConnectionInterface {
     private handleDisconnect(): void {
         if (this.isConnectionLive()) {
             throw new ConnectionError("connected to network");
+        } else if (this.attemptingReconnect) {
+            return;
         }
+        this.attemptingReconnect = true;
         this.client.editor.disable();
         this.peerConnections.forEach((connection: any, id: string): void => {
             connection.close();
             this.peerConnections.delete(id);
+            this.client.removePeerDisplay(id);
         });
-        if (!this.attemptingReconnect) {
-            this.attemptingReconnect = true;
-            this.reconnect();
-        }
+        this.reconnect();
     }
 
     /**
@@ -364,8 +388,7 @@ export class Connection implements ConnectionInterface {
         );
         connection.on(
             "error",
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            ((error: Error): void => {
+            ((): void => {
                 connection.close();
             }).bind(this)
         );
@@ -415,12 +438,10 @@ export class Connection implements ConnectionInterface {
 
     /** Reattempt to reconnect if disconnected */
     private reconnect(): void {
-        const RETRY_INTERVAL = 3000;
         if (this.isConnectionLive()) {
             this.attemptingReconnect = false;
             return;
         }
         this.connectToNetwork();
-        setTimeout(this.reconnect.bind(this), RETRY_INTERVAL);
     }
 }

@@ -193,7 +193,7 @@ export class Editor implements EditorInterface {
         const statusText = document.getElementById("status-text")!;
         linkButton.disabled = true;
         statusDot.style.backgroundColor = "var(--nord-red)";
-        statusText.innerHTML = "Reconnecting";
+        statusText.innerHTML = this.client.connection.isHost ? "Reconnecting" : "Reconnecting to host";
     }
 
     /** Update keybindings */
@@ -221,6 +221,10 @@ export class Editor implements EditorInterface {
                             this.client.crdt.localDelete(delta);
                             break;
                     }
+                }
+                // Cache document if host
+                if (this.client.connection.isHost) {
+                    window.localStorage.setItem("document", this.editor.getValue());
                 }
             }).bind(this)
         );

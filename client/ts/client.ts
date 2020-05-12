@@ -9,6 +9,12 @@ import { ConnectionError } from "./error";
 import { MessageType } from "./message";
 import { generateName } from "./names";
 
+const DEFAULT_DOCUMENT = `def print_ten():
+    for i in range(10):
+        print(i)
+
+print_ten()`;
+
 /** Generic client interface */
 export interface ClientInterface {
     uuid: string;
@@ -26,24 +32,40 @@ export interface ClientInterface {
  */
 export class Client implements ClientInterface {
     public uuid: string;
-    public editor: EditorInterface;
     public connection: ConnectionInterface;
     public console: Console;
     public crdt: CRDT;
+    public editor: EditorInterface;
     public name: string;
 
     private bindingsIndex;
 
     public constructor() {
+        this.initHandlers();
+        // Set name to cached name if exists
+        const cachedName = window.localStorage.getItem("name");
+        if (cachedName === null) {
+            this.name = generateName();
+        } else {
+            this.name = cachedName;
+            const start = document.getElementById("start")!;
+            start.remove();
+        }
         this.uuid = uuid();
-        this.editor = new Editor(this);
         this.connection = new Connection(this.getHostID(), this);
         this.console = new Console(this);
         this.crdt = new CRDT(this.uuid, this);
-        this.name = generateName();
-        this.initHandlers();
+        this.editor = new Editor(this);
         this.addPeerDisplay({ h: 220, s: 28, l: 88 }, this.name, this.uuid);
-
+        // Initialize document
+        if (this.connection.isHost) {
+            const cachedDocument = window.localStorage.getItem("document");
+            if (cachedDocument === null) {
+                this.crdt.initDocument(DEFAULT_DOCUMENT);
+            } else {
+                this.crdt.initDocument(cachedDocument);
+            }
+        }
         this.bindingsIndex = 0;
     }
 
@@ -62,6 +84,8 @@ export class Client implements ClientInterface {
             });
         }
         this.updatePeerDisplay(this.uuid, name);
+        // Cache name
+        window.localStorage.setItem("name", name);
     }
 
     /** Get connection link to connect to peer network */
@@ -92,7 +116,12 @@ export class Client implements ClientInterface {
         dotElement.classList.add("peer-dot");
         nameElement.classList.add("peer-name");
         dotElement.style.backgroundColor = `hsl(${dotColor.h}, ${dotColor.s}%, ${dotColor.l}%)`;
-        nameElement.innerHTML = name;
+        // If the peer to add is the host, indicate it
+        if ((this.connection.isHost && peerID === this.uuid) || peerID === this.connection.hostID) {
+            nameElement.innerHTML = name + " (host)";
+        } else {
+            nameElement.innerHTML = name;
+        }
         peerElement.appendChild(dotElement);
         peerElement.appendChild(nameElement);
         peersElement!.appendChild(peerElement);
@@ -105,7 +134,9 @@ export class Client implements ClientInterface {
      */
     public removePeerDisplay(peerID: string): void {
         const peerElement = document.getElementById(peerID);
-        peerElement!.remove();
+        if (peerElement !== null) {
+            peerElement!.remove();
+        }
     }
 
     /**
@@ -118,7 +149,11 @@ export class Client implements ClientInterface {
     public updatePeerDisplay(peerID: string, name?: string, dotColor?: Color): void {
         const peerElement = document.getElementById(peerID);
         if (name !== undefined) {
-            (peerElement!.children[1] as HTMLElement)!.innerHTML = name;
+            if ((this.connection.isHost && peerID === this.uuid) || peerID === this.connection.hostID) {
+                (peerElement!.children[1] as HTMLElement)!.innerHTML = name + " (host)";
+            } else {
+                (peerElement!.children[1] as HTMLElement)!.innerHTML = name;
+            }
         }
         if (dotColor !== undefined) {
             (peerElement!
