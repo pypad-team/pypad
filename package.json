@@ -30,7 +30,7 @@
     "test:server": "mocha -r ts-node/register ./tests/server/*.ts"
   },
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "peer": "^0.5.3"
   },
   "devDependencies": {
